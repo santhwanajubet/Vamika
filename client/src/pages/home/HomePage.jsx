@@ -1,0 +1,79 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { getFeatured, getNewArrivals } from '../../api/productApi';
+import Spinner from '../../components/ui/Spinner';
+
+export default function HomePage() {
+  const { user } = useSelector((s) => s.auth);
+  const [featured, setFeatured] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([getFeatured(), getNewArrivals()])
+      .then(([f, n]) => {
+        setFeatured(f.data.data.products);
+        setNewArrivals(n.data.data.products);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Spinner className="mt-32" />;
+
+  return (
+    <div>
+      <section className="bg-red-50 py-24 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">Timeless Sarees</h1>
+        <p className="text-gray-600 mb-8">Discover traditional & designer sarees for every occasion</p>
+        <div className="flex justify-center gap-4">
+          <Link to="/shop" className="inline-block bg-black text-white px-8 py-3 rounded text-sm font-medium hover:bg-gray-800">
+            Shop Now
+          </Link>
+          {!user && (
+            <Link to="/auth/register" className="inline-block border border-black text-black px-8 py-3 rounded text-sm font-medium hover:bg-gray-50">
+              Sign Up Free
+            </Link>
+          )}
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold mb-8">Featured</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {featured.map((p) => (
+            <ProductCard key={p._id} product={p} />
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold mb-8">New Arrivals</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {newArrivals.map((p) => (
+            <ProductCard key={p._id} product={p} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProductCard({ product }) {
+  return (
+    <Link to={`/product/${product.slug}`} className="group">
+      <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
+        {product.images[0] && (
+          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+        )}
+      </div>
+      <h3 className="font-medium text-sm">{product.name}</h3>
+      <p className="text-sm text-gray-500">
+        {product.comparePrice && (
+          <span className="line-through mr-2">₹{product.comparePrice}</span>
+        )}
+        ₹{product.price}
+      </p>
+    </Link>
+  );
+}

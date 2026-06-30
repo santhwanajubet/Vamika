@@ -1,0 +1,269 @@
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProduct, getRelated } from '../../api/productApi';
+import { getProductReviews, createReview } from '../../api/reviewApi';
+import { addItem } from '../../features/cartSlice';
+import Button from '../../components/ui/Button';
+import Spinner from '../../components/ui/Spinner';
+
+function Stars({ rating, interactive, onChange }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type={interactive ? 'button' : undefined}
+          onClick={interactive ? () => onChange(star) : undefined}
+          className={`text-lg ${interactive ? 'cursor-pointer' : 'cursor-default'} ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function ProductPage() {
+  const { slug } = useParams();
+  const dispatch = useDispatch();
+  const { user } = useSelector((s) => s.auth);
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [qty, setQty] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [form, setForm] = useState({ rating: 0, title: '', comment: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getProduct(slug)
+      .then((res) => {
+        const p = res.data.data.product;
+        setProduct(p);
+        if (p.variants.length > 0) {
+          setSelectedColor(p.variants[0].color);
+          setSelectedSize(p.variants[0].size);
+        }
+        return Promise.all([getRelated(p._id), getProductReviews(p._id)]);
+      })
+      .then(([relatedRes, reviewsRes]) => {
+        setRelated(relatedRes.data.data.products);
+        setReviews(reviewsRes.data.data.reviews);
+      })
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  useEffect(() => {
+    if (user && product) {
+      setUserHasReviewed(reviews.some((r) => r.user?._id === user._id));
+    }
+  }, [user, product, reviews]);
+
+  const currentVariant = product?.variants?.find(
+    (v) => v.size === selectedSize && v.color === selectedColor
+  );
+
+  const colors = [...new Set(product?.variants?.map((v) => v.color) || [])];
+  const sizes = [...new Set(product?.variants?.map((v) => v.size) || [])];
+
+  const handleAddToCart = () => {
+    if (!currentVariant) return;
+    dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty }));
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!form.rating) return;
+    setSubmitting(true);
+    try {
+      const res = await createReview(product._id, form);
+      setReviews((prev) => [res.data.data.review, ...prev]);
+      setForm({ rating: 0, title: '', comment: '' });
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <Spinner className="mt-32" />;
+  if (!product) return <p className="text-center mt-32">Product not found</p>;
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="grid md:grid-cols-2 gap-12">
+        <div>
+          <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
+            {product.images[activeImage] && (
+              <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+            )}
+          </div>
+          {product.images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(i)}
+                  className={`w-16 h-16 shrink-0 rounded border-2 overflow-hidden ${activeImage === i ? 'border-black' : 'border-transparent'}`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+          <p className="text-2xl font-semibold mb-4">
+            {product.comparePrice && (
+              <span className="line-through text-gray-400 text-lg mr-2">₹{product.comparePrice}</span>
+            )}
+            ₹{product.price}
+          </p>
+
+          <div className="mb-4">
+            <p className="text-sm font-medium mb-1">Color</p>
+            <div className="flex gap-2">
+              {colors.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedColor(c)}
+                  className={`px-3 py-1 text-sm border rounded ${selectedColor === c ? 'border-black bg-black text-white' : 'border-gray-300'}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <p className="text-sm font-medium mb-1">Size</p>
+            <div className="flex gap-2">
+              {sizes.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSelectedSize(s)}
+                  className={`px-3 py-1 text-sm border rounded ${selectedSize === s ? 'border-black bg-black text-white' : 'border-gray-300'}`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-sm font-medium mb-1">Quantity</p>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setQty(Math.max(1, qty - 1))} className="border px-2 py-1 rounded">-</button>
+              <span className="w-8 text-center">{qty}</span>
+              <button onClick={() => setQty(qty + 1)} className="border px-2 py-1 rounded">+</button>
+            </div>
+          </div>
+
+          <Button onClick={handleAddToCart} disabled={!currentVariant || currentVariant.stock === 0} className="w-full mb-2">
+            {currentVariant?.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+
+          <p className="text-xs text-gray-500">
+            {currentVariant ? `${currentVariant.stock} in stock` : 'Select size and color'}
+          </p>
+
+          <p className="mt-6 text-sm text-gray-700 leading-relaxed">{product.description}</p>
+
+          <div className="mt-4 text-xs text-gray-400 space-y-1">
+            {product.material && <p>Material: {product.material}</p>}
+            {product.workType && <p>Work Type: {product.workType}</p>}
+            {product.occasion && <p>Occasion: {product.occasion}</p>}
+            {product.length && <p>Length: {product.length}</p>}
+          </div>
+        </div>
+      </div>
+
+      <section className="mt-16 border-t pt-8">
+        <h2 className="text-xl font-bold mb-6">Customer Reviews</h2>
+
+        {reviews.length === 0 && <p className="text-sm text-gray-500 mb-6">No reviews yet.</p>}
+
+        <div className="space-y-4 mb-8">
+          {reviews.map((r) => (
+            <div key={r._id} className="border rounded p-4">
+              <div className="flex items-center gap-3 mb-1">
+                <Stars rating={r.rating} />
+                <span className="text-sm font-medium">{r.user?.name || 'Anonymous'}</span>
+                <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</span>
+              </div>
+              {r.title && <p className="text-sm font-medium">{r.title}</p>}
+              {r.comment && <p className="text-sm text-gray-600 mt-1">{r.comment}</p>}
+            </div>
+          ))}
+        </div>
+
+        {user ? (
+          userHasReviewed ? (
+            <p className="text-sm text-gray-500">You have already reviewed this product.</p>
+          ) : (
+            <form onSubmit={handleSubmitReview} className="border rounded p-4 max-w-lg">
+              <h3 className="text-sm font-semibold mb-3">Write a Review</h3>
+              <div className="mb-3">
+                <label className="block text-xs font-medium mb-1">Rating</label>
+                <Stars rating={form.rating} interactive onChange={(val) => setForm((f) => ({ ...f, rating: val }))} />
+              </div>
+              <div className="mb-3">
+                <label className="block text-xs font-medium mb-1">Title</label>
+                <input
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  value={form.title}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="Great saree!"
+                />
+              </div>
+              <div className="mb-3">
+                <label className="block text-xs font-medium mb-1">Comment</label>
+                <textarea
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  rows={3}
+                  value={form.comment}
+                  onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
+                  placeholder="Share your experience..."
+                />
+              </div>
+              <Button type="submit" disabled={submitting || !form.rating}>
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </Button>
+            </form>
+          )
+        ) : (
+          <p className="text-sm text-gray-500">
+            <Link to="/auth/login" className="underline">Sign in</Link> to leave a review.
+          </p>
+        )}
+      </section>
+
+      {related.length > 0 && (
+        <section className="mt-16">
+          <h2 className="text-xl font-bold mb-6">You May Also Like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {related.map((p) => (
+              <Link key={p._id} to={`/product/${p.slug}`} className="group">
+                <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
+                  {p.images[0] && (
+                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  )}
+                </div>
+                <h3 className="font-medium text-sm">{p.name}</h3>
+                <p className="text-sm text-gray-500">₹{p.price}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

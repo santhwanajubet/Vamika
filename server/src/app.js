@@ -5,8 +5,21 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const env = require('./config/env');
+require('./config/cloudinary');
 const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const productRoutes = require('./routes/product.routes');
+const categoryRoutes = require('./routes/category.routes');
+const cartRoutes = require('./routes/cart.routes');
+const wishlistRoutes = require('./routes/wishlist.routes');
+const orderRoutes = require('./routes/order.routes');
+const reviewRoutes = require('./routes/review.routes');
+const couponRoutes = require('./routes/coupon.routes');
+const addressRoutes = require('./routes/address.routes');
+const uploadRoutes = require('./routes/upload.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
 
@@ -30,7 +43,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === 'development' ? 100 : 5,
   message: { success: false, message: 'Too many auth attempts' },
 });
 
@@ -54,6 +67,18 @@ app.get('/api/health', (_req, res) => {
 
 // ─── Routes ──────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // ─── 404 handler ─────────────────────────────────
 app.all('*', (req, res) => {
