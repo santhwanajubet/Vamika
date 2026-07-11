@@ -44,6 +44,7 @@ export default function ProductPage() {
   const [submitting, setSubmitting] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistIds, setWishlistIds] = useState(new Set());
+  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -87,6 +88,8 @@ export default function ProductPage() {
     (v) => v.size === selectedSize && v.color === selectedColor
   );
 
+  useEffect(() => { setAddedToCart(false); }, [selectedSize, selectedColor]);
+
   const colors = [...new Set(product?.variants?.map((v) => v.color) || [])];
   const sizes = [...new Set(product?.variants?.map((v) => v.size) || [])];
 
@@ -104,6 +107,7 @@ export default function ProductPage() {
         image: product.images[0] || '',
       }));
     }
+    setAddedToCart(true);
   };
 
   const handleToggleWishlist = async (id) => {
@@ -213,8 +217,8 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <Button onClick={handleAddToCart} disabled={!currentVariant || currentVariant.stock === 0} className="w-full mb-2">
-            {currentVariant?.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          <Button onClick={handleAddToCart} disabled={!currentVariant || currentVariant.stock === 0 || addedToCart} className="w-full mb-2">
+            {currentVariant?.stock === 0 ? 'Out of Stock' : addedToCart ? 'In Cart ✓' : 'Add to Cart'}
           </Button>
 
           <p className="text-xs text-gray-500">
