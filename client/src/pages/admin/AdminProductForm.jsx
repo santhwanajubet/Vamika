@@ -19,7 +19,7 @@ export default function AdminProductForm() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
   const [form, setForm] = useState({
-    name: '', description: '', price: '', comparePrice: '', costPrice: '',
+    name: '', description: '', price: '', offerPrice: '', costPrice: '',
     category: '', material: '', workType: '', occasion: '', length: '',
     tags: '', featured: false, isNew: false,
     images: [''],
@@ -37,7 +37,7 @@ export default function AdminProductForm() {
             name: p.name || '',
             description: p.description || '',
             price: p.price || '',
-            comparePrice: p.comparePrice || '',
+            offerPrice: p.offerPrice || '',
             costPrice: p.costPrice || '',
             category: p.category?._id || p.category || '',
             material: p.material || '',
@@ -113,7 +113,7 @@ export default function AdminProductForm() {
       name: form.name,
       description: form.description,
       price: Number(form.price),
-      comparePrice: form.comparePrice ? Number(form.comparePrice) : undefined,
+      offerPrice: form.offerPrice ? Number(form.offerPrice) : undefined,
       costPrice: form.costPrice ? Number(form.costPrice) : undefined,
       category: form.category,
       material: form.material || undefined,
@@ -172,8 +172,8 @@ export default function AdminProductForm() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Compare Price</label>
-            <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-sm" value={form.comparePrice}
-              onChange={(e) => updateField('comparePrice', e.target.value)} />
+            <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-sm" value={form.offerPrice}
+              onChange={(e) => updateField('offerPrice', e.target.value)} />
           </div>
 
           <div>

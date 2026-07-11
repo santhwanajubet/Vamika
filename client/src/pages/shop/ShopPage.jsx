@@ -95,7 +95,7 @@ export default function ShopPage() {
 
         <h3 className="font-semibold mt-6 mb-3">Material</h3>
         <div className="space-y-2 text-sm">
-          {['Silk', 'Cotton', 'Georgette', 'Chiffon', 'Linen', 'Velvet'].map((m) => (
+          {['Silk', 'Cotton', 'Georgette', 'Chiffon', 'Linen', 'Kodi'].map((m) => (
             <label key={m} className="flex items-center gap-2">
               <input
                 type="radio"

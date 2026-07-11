@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Price is required'],
     min: [0, 'Price must be positive'],
   },
-  comparePrice: {
+  offerPrice: {
     type: Number,
     min: [0, 'Compare price must be positive'],
   },
@@ -85,7 +85,7 @@ productSchema.virtual('totalStock').get(function () {
 });
 
 productSchema.virtual('hasDiscount').get(function () {
-  return this.comparePrice > this.price;
+  return this.offerPrice > this.price;
 });
 
 module.exports = mongoose.model('Product', productSchema);

@@ -4,7 +4,7 @@
 Product listing, detail view, search, filtering, sorting, and admin CRUD.
 
 ## Backend
-- **Model:** `Product` — name, slug, description, category, brand, images, price, comparePrice, variants (size/color/sku/stock), tags, gender, fabric, fit, pattern, featured, isNew, avgRating, numReviews, soldCount
+- **Model:** `Product` — name, slug, description, category, brand, images, price, offerPrice, variants (size/color/sku/stock), tags, gender, fabric, fit, pattern, featured, isNew, avgRating, numReviews, soldCount
 - **Controller:** `product.controller.js`
 
 ### Features
@@ -12,7 +12,7 @@ Product listing, detail view, search, filtering, sorting, and admin CRUD.
 - Filtering by category, brand, gender, price range, size, color
 - Sorting by newest, price (asc/desc), rating, popularity (soldCount)
 - Paginated responses with page/limit/total/pages
-- Virtual fields: `totalStock` (sum of variant stocks), `hasDiscount` (comparePrice > price)
+- Virtual fields: `totalStock` (sum of variant stocks), `hasDiscount` (offerPrice > price)
 
 ## Frontend
 - **Pages:** `ShopPage.jsx`, `ProductPage.jsx`

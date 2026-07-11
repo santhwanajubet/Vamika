@@ -52,7 +52,7 @@ const seed = async () => {
     {
       name: 'Mysore Silk Saree',
       category: 'Silk Sarees',
-      price: 4500, comparePrice: 5999,
+      price: 4500, offerPrice: 5999,
       material: 'silk', workType: 'zari work', occasion: 'wedding', length: '6.0m',
       tags: ['traditional', 'festive', 'bridal'],
       featured: true, isNew: true,
@@ -66,7 +66,7 @@ const seed = async () => {
     {
       name: 'Banarasi Brocade Saree',
       category: 'Banarasi Sarees',
-      price: 8500, comparePrice: 12000,
+      price: 8500, offerPrice: 12000,
       material: 'silk', workType: 'embroidered', occasion: 'wedding', length: '6.5m',
       tags: ['luxury', 'bridal', 'handwoven'],
       featured: true, isNew: false,
@@ -79,7 +79,7 @@ const seed = async () => {
     {
       name: 'Kanchipuram Temple Border',
       category: 'Kanchipuram Sarees',
-      price: 6500, comparePrice: 8000,
+      price: 6500, offerPrice: 8000,
       material: 'silk', workType: 'zari work', occasion: 'temple', length: '6.0m',
       tags: ['traditional', 'south-indian', 'festive'],
       featured: false, isNew: true,
@@ -93,7 +93,7 @@ const seed = async () => {
     {
       name: 'Cotton Printed Saree',
       category: 'Cotton Sarees',
-      price: 1200, comparePrice: 1800,
+      price: 1200, offerPrice: 1800,
       material: 'cotton', workType: 'block print', occasion: 'daily wear', length: '5.5m',
       tags: ['comfort', 'casual', 'summer'],
       featured: false, isNew: true,
@@ -107,7 +107,7 @@ const seed = async () => {
     {
       name: 'Cotton Handloom Saree',
       category: 'Cotton Sarees',
-      price: 1800, comparePrice: 2500,
+      price: 1800, offerPrice: 2500,
       material: 'cotton', workType: 'handwoven', occasion: 'casual', length: '5.5m',
       tags: ['handloom', 'eco-friendly', 'traditional'],
       featured: true, isNew: false,
@@ -120,7 +120,7 @@ const seed = async () => {
     {
       name: 'Georgette Embroidered Saree',
       category: 'Georgette Sarees',
-      price: 3200, comparePrice: 4500,
+      price: 3200, offerPrice: 4500,
       material: 'georgette', workType: 'embroidered', occasion: 'party', length: '6.0m',
       tags: ['party-wear', 'lightweight', 'designer'],
       featured: false, isNew: true,
@@ -133,7 +133,7 @@ const seed = async () => {
     {
       name: 'Chiffon Floral Saree',
       category: 'Chiffon Sarees',
-      price: 2500, comparePrice: 3500,
+      price: 2500, offerPrice: 3500,
       material: 'chiffon', workType: 'printed', occasion: 'casual', length: '6.0m',
       tags: ['lightweight', 'daily-wear', 'floral'],
       featured: false, isNew: false,
@@ -146,7 +146,7 @@ const seed = async () => {
     {
       name: 'Designer Sequin Saree',
       category: 'Designer Sarees',
-      price: 5500, comparePrice: 7500,
+      price: 5500, offerPrice: 7500,
       material: 'net', workType: 'stone work', occasion: 'party', length: '6.0m',
       tags: ['designer', 'party-wear', 'festive'],
       featured: true, isNew: true,
@@ -159,7 +159,7 @@ const seed = async () => {
     {
       name: 'Kanjivaram Silk Saree',
       category: 'Kanchipuram Sarees',
-      price: 9500, comparePrice: 13000,
+      price: 9500, offerPrice: 13000,
       material: 'silk', workType: 'zari work', occasion: 'wedding', length: '6.5m',
       tags: ['bridal', 'traditional', 'luxury'],
       featured: false, isNew: false,
@@ -172,7 +172,7 @@ const seed = async () => {
     {
       name: 'Georgette Party Wear Saree',
       category: 'Georgette Sarees',
-      price: 2800, comparePrice: 4000,
+      price: 2800, offerPrice: 4000,
       material: 'georgette', workType: 'stone work', occasion: 'party', length: '6.0m',
       tags: ['party-wear', 'designer', 'lightweight'],
       featured: false, isNew: false,
@@ -186,7 +186,7 @@ const seed = async () => {
     {
       name: 'Chiffon Evening Saree',
       category: 'Chiffon Sarees',
-      price: 2200, comparePrice: 3000,
+      price: 2200, offerPrice: 3000,
       material: 'chiffon', workType: 'embroidered', occasion: 'party', length: '6.0m',
       tags: ['evening-wear', 'lightweight', 'elegant'],
       featured: true, isNew: false,
@@ -199,7 +199,7 @@ const seed = async () => {
     {
       name: 'Designer Lehenga',
       category: 'Lehengas',
-      price: 12000, comparePrice: 16000,
+      price: 12000, offerPrice: 16000,
       material: 'silk', workType: 'embroidered', occasion: 'wedding', length: '6.0m',
       tags: ['bridal', 'designer', 'festive'],
       featured: true, isNew: true,
@@ -214,7 +214,7 @@ const seed = async () => {
     {
       name: 'Silk Festive Saree',
       category: 'Silk Sarees',
-      price: 3800, comparePrice: 5000,
+      price: 3800, offerPrice: 5000,
       material: 'silk', workType: 'zari work', occasion: 'festive', length: '6.0m',
       tags: ['festive', 'traditional', 'elegant'],
       featured: false, isNew: false,
@@ -227,7 +227,7 @@ const seed = async () => {
     {
       name: 'Banarasi Silk Saree',
       category: 'Banarasi Sarees',
-      price: 7500, comparePrice: 10000,
+      price: 7500, offerPrice: 10000,
       material: 'silk', workType: 'embroidered', occasion: 'festive', length: '6.5m',
       tags: ['traditional', 'festive', 'handwoven'],
       featured: false, isNew: false,
@@ -240,7 +240,7 @@ const seed = async () => {
     {
       name: 'Cotton Summer Saree',
       category: 'Cotton Sarees',
-      price: 999, comparePrice: 1499,
+      price: 999, offerPrice: 1499,
       material: 'cotton', workType: 'printed', occasion: 'daily wear', length: '5.5m',
       tags: ['summer', 'comfort', 'budget'],
       featured: false, isNew: true,

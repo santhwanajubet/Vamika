@@ -297,7 +297,7 @@ laspero/
 | brand         | ObjectId | ref `brands`                                 |
 | images        | [String] | Cloudinary URLs; first is primary            |
 | price         | Number   | required                                     |
-| comparePrice  | Number   | original price for sale badge                |
+| offerPrice  | Number   | original price for sale badge                |
 | costPrice     | Number   | internal; for margin calculation             |
 | variants      | [Object] | `[{ size, color, sku, stock, images }]`      |
 | tags          | [String] | search keywords                              |
