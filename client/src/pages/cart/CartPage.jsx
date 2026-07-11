@@ -63,34 +63,38 @@ export default function CartPage() {
         {items.map((item) => (
           <div
             key={item._id || item.variantSku}
-            className={`flex gap-4 border-b pb-4 transition-opacity ${isPending(item) ? 'opacity-50 pointer-events-none' : ''}`}
+            className={`border-b pb-4 transition-opacity ${isPending(item) ? 'opacity-50 pointer-events-none' : ''}`}
           >
-            <div className="w-20 h-20 bg-gray-100 rounded shrink-0">
-              {(item.product?.images?.[0] || item.image) && (
-                <img src={item.product?.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover rounded" />
-              )}
+            <div className="flex gap-3 sm:gap-4">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded shrink-0">
+                {(item.product?.images?.[0] || item.image) && (
+                  <img src={item.product?.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover rounded" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm truncate">{item.product?.name || item.name}</p>
+                <p className="text-xs text-gray-500 truncate">{item.variantSku}</p>
+                <p className="text-sm font-semibold mt-1">₹{item.price}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="font-medium text-sm">{item.product?.name || item.name}</p>
-              <p className="text-xs text-gray-500">{item.variantSku}</p>
-              <p className="text-sm font-semibold mt-1">₹{item.price}</p>
-            </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between mt-2 pl-0 sm:pl-0">
               {isPending(item) ? (
                 <Spinner size="sm" />
               ) : (
                 <>
-                  <button
-                    onClick={() => handleUpdateQty(item, -1)}
-                    className="border px-2 py-1 rounded text-sm"
-                    disabled={item.quantity <= 1}
-                  >-</button>
-                  <span className="w-6 text-center text-sm">{item.quantity}</span>
-                  <button
-                    onClick={() => handleUpdateQty(item, 1)}
-                    className="border px-2 py-1 rounded text-sm"
-                  >+</button>
-                  <button onClick={() => handleRemove(item)} className="text-red-500 text-sm ml-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleUpdateQty(item, -1)}
+                      className="border px-2 py-1 rounded text-sm"
+                      disabled={item.quantity <= 1}
+                    >-</button>
+                    <span className="w-6 text-center text-sm">{item.quantity}</span>
+                    <button
+                      onClick={() => handleUpdateQty(item, 1)}
+                      className="border px-2 py-1 rounded text-sm"
+                    >+</button>
+                  </div>
+                  <button onClick={() => handleRemove(item)} className="text-red-500 text-sm">
                     Remove
                   </button>
                 </>

@@ -51,15 +51,15 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="bg-red-50 py-24 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Timeless Sarees</h1>
-        <p className="text-gray-600 mb-8">Discover traditional & designer sarees for every occasion</p>
-        <div className="flex justify-center gap-4">
-          <Link to="/shop" className="inline-block bg-black text-white px-8 py-3 rounded text-sm font-medium hover:bg-gray-800">
+      <section className="bg-red-50 py-16 sm:py-24 text-center px-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Timeless Sarees</h1>
+        <p className="text-gray-600 mb-8 text-sm sm:text-base">Discover traditional & designer sarees for every occasion</p>
+        <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
+          <Link to="/shop" className="inline-block bg-black text-white px-6 sm:px-8 py-3 rounded text-sm font-medium hover:bg-gray-800">
             Shop Now
           </Link>
           {!user && (
-            <Link to="/auth/register" className="inline-block border border-black text-black px-8 py-3 rounded text-sm font-medium hover:bg-gray-50">
+            <Link to="/auth/register" className="inline-block border border-black text-black px-6 sm:px-8 py-3 rounded text-sm font-medium hover:bg-gray-50">
               Sign Up Free
             </Link>
           )}

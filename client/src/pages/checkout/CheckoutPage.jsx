@@ -120,7 +120,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-12">
+    <div className="max-w-4xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-8 md:gap-12">
       <div>
         <h1 className="text-2xl font-bold mb-6">Shipping Address</h1>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -135,6 +135,8 @@ export default function CheckoutPage() {
               value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
             <input type="text" placeholder="State" required className="border rounded px-3 py-2 text-sm"
               value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <input type="text" placeholder="PIN Code" required className="border rounded px-3 py-2 text-sm"
               value={address.zipCode} onChange={(e) => setAddress({ ...address, zipCode: e.target.value })} />
             <input type="text" placeholder="Country" required className="border rounded px-3 py-2 text-sm"

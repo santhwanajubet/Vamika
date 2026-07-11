@@ -65,11 +65,11 @@ export default function OrderDetailPage() {
         <h2 className="font-semibold mb-3">Timeline</h2>
         <div className="space-y-2">
           {order.statusHistory?.map((h, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm">
-              <span className={`w-2 h-2 rounded-full ${STATUS_COLORS[h.status]?.split(' ')[0] || 'bg-gray-300'}`} />
+            <div key={i} className="flex flex-wrap items-center gap-2 text-sm">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_COLORS[h.status]?.split(' ')[0] || 'bg-gray-300'}`} />
               <span className="capitalize">{h.status}</span>
               <span className="text-gray-400 text-xs">{new Date(h.timestamp).toLocaleString()}</span>
-              {h.note && <span className="text-gray-500">— {h.note}</span>}
+              {h.note && <span className="text-gray-500 w-full sm:w-auto pl-4 sm:pl-0">— {h.note}</span>}
             </div>
           ))}
         </div>

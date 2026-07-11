@@ -87,8 +87,16 @@ export default function ShopPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 flex gap-8">
-      <aside className={`w-64 shrink-0 ${showFilters ? 'block' : 'hidden'} md:block`}>
-        <h3 className="font-semibold mb-3">Categories</h3>
+      {showFilters && (
+        <div className="fixed inset-0 bg-black/30 z-10 md:hidden" onClick={() => setShowFilters(false)} />
+      )}
+
+      <aside className={`${showFilters ? 'fixed inset-y-0 left-0 z-20 w-72 bg-white shadow-lg overflow-y-auto p-5' : 'hidden'} md:static md:block md:w-64 md:shrink-0 md:bg-transparent md:shadow-none md:p-0 md:overflow-visible`}>
+        <div className="flex items-center justify-between mb-4 md:hidden">
+          <h3 className="font-semibold text-base">Filters</h3>
+          <button onClick={() => setShowFilters(false)} className="text-gray-500 hover:text-black text-xl leading-none">&times;</button>
+        </div>
+        <h3 className="font-semibold mb-3 hidden md:block">Categories</h3>
         <div className="space-y-2 text-sm">
           <button onClick={() => setParams(new URLSearchParams())} className="block hover:underline">
             All
@@ -158,10 +166,6 @@ export default function ShopPage() {
           <option value="rating">Best Rated</option>
         </select>
       </aside>
-
-      {showFilters && (
-        <div className="fixed inset-0 bg-black/30 z-10 md:hidden" onClick={() => setShowFilters(false)} />
-      )}
 
       <div className="flex-1">
         <div className="flex items-center justify-between mb-6">
