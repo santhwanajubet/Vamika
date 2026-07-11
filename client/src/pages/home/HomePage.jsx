@@ -32,14 +32,19 @@ export default function HomePage() {
   const handleToggleWishlist = async (productId) => {
     if (!user) return;
     const newSet = new Set(wishlistIds);
-    if (newSet.has(productId)) {
-      await removeFromWishlist(productId);
-      newSet.delete(productId);
-    } else {
-      await addToWishlist(productId);
-      newSet.add(productId);
-    }
+    const wasWishlisted = newSet.has(productId);
+    if (wasWishlisted) newSet.delete(productId);
+    else newSet.add(productId);
     setWishlistIds(newSet);
+    try {
+      if (wasWishlisted) await removeFromWishlist(productId);
+      else await addToWishlist(productId);
+    } catch {
+      const revert = new Set(wishlistIds);
+      if (wasWishlisted) revert.add(productId);
+      else revert.delete(productId);
+      setWishlistIds(revert);
+    }
   };
 
   if (loading) return <Spinner className="mt-32" />;

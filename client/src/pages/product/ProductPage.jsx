@@ -96,7 +96,7 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!currentVariant) return;
     if (user) {
-      dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty }));
+      dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty, price: product.price, name: product.name, image: product.images[0] || '' }));
     } else {
       dispatch(addGuestItem({
         productId: product._id,
@@ -112,18 +112,22 @@ export default function ProductPage() {
 
   const handleToggleWishlist = async (id) => {
     if (!user) return;
+    const newSet = new Set(wishlistIds);
+    const wasWishlisted = newSet.has(id);
+    if (wasWishlisted) newSet.delete(id);
+    else newSet.add(id);
+    setWishlistIds(newSet);
+    if (id === product._id) setWishlisted(newSet.has(id));
     try {
-      const newSet = new Set(wishlistIds);
-      if (newSet.has(id)) {
-        await removeFromWishlist(id);
-        newSet.delete(id);
-      } else {
-        await addToWishlist(id);
-        newSet.add(id);
-      }
-      setWishlistIds(newSet);
-      if (id === product._id) setWishlisted(newSet.has(id));
-    } catch {}
+      if (wasWishlisted) await removeFromWishlist(id);
+      else await addToWishlist(id);
+    } catch {
+      const revert = new Set(wishlistIds);
+      if (wasWishlisted) revert.add(id);
+      else revert.delete(id);
+      setWishlistIds(revert);
+      if (id === product._id) setWishlisted(revert.has(id));
+    }
   };
 
   const handleSubmitReview = async (e) => {

@@ -24,11 +24,19 @@ export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, { rejectWi
   }
 });
 
-export const addItem = createAsyncThunk('cart/addItem', async (data, { rejectWithValue }) => {
+export const addItem = createAsyncThunk('cart/addItem', async (data, { getState, dispatch, rejectWithValue }) => {
+  const prevItems = getState().cart.items;
+  const existing = prevItems.find((i) => i.variantSku === data.variantSku);
+  if (existing) {
+    dispatch({ type: 'cart/optimisticUpdate', payload: prevItems.map((i) => i.variantSku === data.variantSku ? { ...i, quantity: i.quantity + (data.quantity || 1) } : i) });
+  } else {
+    dispatch({ type: 'cart/optimisticUpdate', payload: [...prevItems, { variantSku: data.variantSku, quantity: data.quantity || 1, price: data.price || 0, name: data.name || '', image: data.image || '', product: { _id: data.productId, name: data.name, images: [data.image] } }] });
+  }
   try {
     const res = await addToCart(data);
     return res.data.data.cart;
   } catch (err) {
+    dispatch({ type: 'cart/optimisticUpdate', payload: prevItems });
     return rejectWithValue(err.response?.data?.message);
   }
 });
@@ -75,6 +83,9 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState: { items: loadGuestCart(), loading: false, error: null, pendingItem: null },
   reducers: {
+    optimisticUpdate: (state, action) => {
+      state.items = action.payload;
+    },
     addGuestItem: (state, action) => {
       const idx = state.items.findIndex((i) => i.variantSku === action.payload.variantSku);
       if (idx >= 0) state.items[idx].quantity += action.payload.quantity;
