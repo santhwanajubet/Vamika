@@ -41,7 +41,7 @@ const addItem = async (req, res, next) => {
         product: productId,
         variantSku,
         quantity,
-        price: product.price,
+        price: product.offerPrice || product.price,
       });
     }
 
@@ -136,7 +136,7 @@ const mergeCart = async (req, res, next) => {
             product: guestItem.productId,
             variantSku: guestItem.variantSku,
             quantity: guestItem.quantity,
-            price: product.price,
+            price: product.offerPrice || product.price,
           });
         }
       }

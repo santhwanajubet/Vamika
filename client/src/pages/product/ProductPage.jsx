@@ -96,13 +96,13 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!currentVariant) return;
     if (user) {
-      dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty, price: product.price, name: product.name, image: product.images[0] || '' }));
+      dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty, price: product.offerPrice || product.price, name: product.name, image: product.images[0] || '' }));
     } else {
       dispatch(addGuestItem({
         productId: product._id,
         variantSku: currentVariant.sku,
         quantity: qty,
-        price: product.price,
+        price: product.offerPrice || product.price,
         name: product.name,
         image: product.images[0] || '',
       }));
