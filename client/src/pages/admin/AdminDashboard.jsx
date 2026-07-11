@@ -30,7 +30,9 @@ export default function AdminDashboard() {
       <aside className={`${sidebarOpen ? 'fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg overflow-y-auto' : 'hidden'} md:static md:block md:w-56 md:shrink-0 md:bg-transparent md:shadow-none`}>
         <div className="p-4 border-b md:border-0 md:pt-6">
           <div className="flex items-center justify-between">
-            <Link to="/admin" className="text-lg font-bold">Admin</Link>
+            <Link to="/admin" className="flex items-center">
+              <img src="/vamika_logo.svg" alt="Vamika" className="h-8 w-auto" />
+            </Link>
             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500 hover:text-black text-xl leading-none">&times;</button>
           </div>
           <nav className="mt-4 space-y-0.5 text-sm">
@@ -53,7 +55,7 @@ export default function AdminDashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <span className="font-semibold text-sm">Admin</span>
+          <img src="/vamika_logo.svg" alt="Vamika" className="h-6 w-auto" />
         </div>
 
         <div className="p-4 md:p-6 md:pt-6">

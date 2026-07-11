@@ -23,8 +23,8 @@ export default function Navbar() {
   return (
     <nav className="border-b border-gray-200 bg-white">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold tracking-tight">
-          Vamika
+        <Link to="/" className="flex items-center">
+          <img src="/vamika_logo.svg" alt="Vamika" className="h-10 w-auto" />
         </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
