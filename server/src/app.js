@@ -20,11 +20,14 @@ const addressRoutes = require('./routes/address.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const paymentRoutes = require('./routes/payment.routes');
+const swaggerSpec = require('./config/swagger');
 
 const app = express();
 
 // ─── Security headers ────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+}));
 
 // ─── CORS ────────────────────────────────────────
 app.use(
@@ -63,6 +66,39 @@ if (env.NODE_ENV === 'development') {
 // ─── Health check ────────────────────────────────
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, status: 'ok' });
+});
+
+// ─── Swagger docs ─────────────────────────────────
+app.get('/api/docs.js', (_req, res) => {
+  res.type('application/javascript');
+  res.send(`var spec = ${JSON.stringify(swaggerSpec)};`);
+});
+app.get('/api/docs/', (_req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vamika API Docs</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>html { box-sizing: border-box; overflow-y: scroll; } body { margin:0; background: #fafafa; }</style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script src="/api/docs.js"></script>
+  <script>
+    window.onload = () => SwaggerUIBundle({
+      spec: spec,
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+      plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+      layout: 'StandaloneLayout'
+    });
+  </script>
+</body>
+</html>`);
 });
 
 // ─── Routes ──────────────────────────────────────

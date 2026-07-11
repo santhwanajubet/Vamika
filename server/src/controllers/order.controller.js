@@ -6,7 +6,7 @@ const ApiError = require('../utils/ApiError');
 
 const createOrder = async (req, res, next) => {
   try {
-    const { shippingAddress, paymentMethod = 'stripe', paymentId, couponCode, notes } = req.body;
+    const { shippingAddress, paymentMethod = 'razorpay', paymentId, couponCode, notes } = req.body;
 
     const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
     if (!cart || cart.items.length === 0) {

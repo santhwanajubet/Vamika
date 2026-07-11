@@ -1,11 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import api from '../../api/axios';
 import { createOrder } from '../../api/orderApi';
 import { validateCoupon } from '../../api/couponApi';
 import { clearUserCart } from '../../features/cartSlice';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+
+function loadScript(src) {
+  return new Promise((resolve) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve(true);
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -21,6 +33,8 @@ export default function CheckoutPage() {
   const [discount, setDiscount] = useState(0);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
+
+  useEffect(() => { loadScript('https://checkout.razorpay.com/v1/checkout.js'); }, []);
 
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
   const shipping = subtotal >= 2500 ? 0 : 99;
@@ -55,16 +69,47 @@ export default function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
     try {
-      const { data } = await createOrder({
+      const { data: orderRes } = await createOrder({
         shippingAddress: address,
+        paymentMethod: 'razorpay',
         couponCode: appliedCoupon?.code || undefined,
       });
-      dispatch(clearUserCart());
-      navigate(`/orders/${data.data.order._id}`);
+      const order = orderRes.data.order;
+
+      const { data: payRes } = await api.post('/payments/create-order', { orderId: order._id });
+      const { razorpayOrderId, amount, currency, keyId } = payRes.data;
+
+      const rzp = new window.Razorpay({
+        key: keyId,
+        amount,
+        currency,
+        name: 'Vamika',
+        description: `Order ${order.orderNumber}`,
+        order_id: razorpayOrderId,
+        handler: async function (response) {
+          try {
+            await api.post('/payments/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            dispatch(clearUserCart());
+            navigate(`/orders/${order._id}`);
+          } catch {
+            setError('Payment verification failed. Contact support.');
+            setLoading(false);
+          }
+        },
+        modal: { ondismiss: () => setLoading(false) },
+        prefill: { name: address.fullName, contact: address.phone },
+        theme: { color: '#000' },
+      });
+
+      rzp.open();
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
-    } finally {
       setLoading(false);
     }
   };
@@ -97,7 +142,7 @@ export default function CheckoutPage() {
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full">
-            {loading ? <Spinner size="sm" /> : `Place Order — ₹${total.toFixed(2)}`}
+            {loading ? <Spinner size="sm" /> : `Pay ₹${total.toFixed(2)}`}
           </Button>
         </form>
       </div>

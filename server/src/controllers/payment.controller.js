@@ -1,8 +1,14 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 const Order = require('../models/Order');
 const ApiError = require('../utils/ApiError');
 
-const createPaymentIntent = async (req, res, next) => {
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+const createPaymentOrder = async (req, res, next) => {
   try {
     const { orderId } = req.body;
 
@@ -10,73 +16,55 @@ const createPaymentIntent = async (req, res, next) => {
     if (!order) throw ApiError.notFound('Order not found');
     if (order.paymentStatus === 'paid') throw ApiError.badRequest('Order already paid');
 
-    const paymentIntent = await stripe.paymentIntents.create({
+    const rzpOrder = await razorpay.orders.create({
       amount: Math.round(order.total * 100),
-      currency: 'usd',
-      metadata: { orderId: order._id.toString(), orderNumber: order.orderNumber },
+      currency: 'INR',
+      receipt: order.orderNumber,
+      notes: { orderId: order._id.toString() },
     });
 
-    order.paymentId = paymentIntent.id;
+    order.paymentId = rzpOrder.id;
     await order.save();
 
-    res.json({ success: true, data: { clientSecret: paymentIntent.client_secret } });
+    res.json({
+      success: true,
+      data: {
+        razorpayOrderId: rzpOrder.id,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        keyId: process.env.RAZORPAY_KEY_ID,
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
 
-const handleWebhook = async (req, res, next) => {
+const verifyPayment = async (req, res, next) => {
   try {
-    const sig = req.headers['stripe-signature'];
-    let event;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
-      return res.status(400).json({ success: false, message: `Webhook Error: ${err.message}` });
+    const expectedSig = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (expectedSig !== razorpay_signature) {
+      throw ApiError.badRequest('Invalid payment signature');
     }
 
-    if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object;
-      await Order.findOneAndUpdate(
-        { paymentId: paymentIntent.id },
-        { paymentStatus: 'paid' }
-      );
-    }
-
-    if (event.type === 'payment_intent.payment_failed') {
-      const paymentIntent = event.data.object;
-      await Order.findOneAndUpdate(
-        { paymentId: paymentIntent.id },
-        { paymentStatus: 'failed' }
-      );
-    }
-
-    res.json({ received: true });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const refund = async (req, res, next) => {
-  try {
-    const { orderId } = req.body;
-
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ paymentId: razorpay_order_id });
     if (!order) throw ApiError.notFound('Order not found');
-    if (order.paymentStatus !== 'paid') throw ApiError.badRequest('Order is not paid');
 
-    await stripe.refunds.create({ paymentIntent: order.paymentId });
-
-    order.paymentStatus = 'refunded';
-    order.status = 'cancelled';
-    order.statusHistory.push({ status: 'cancelled', note: 'Refunded' });
+    order.paymentStatus = 'paid';
+    order.paymentId = razorpay_payment_id;
+    order.statusHistory.push({ status: 'confirmed', note: 'Payment received' });
     await order.save();
 
-    res.json({ success: true, message: 'Refund processed' });
+    res.json({ success: true, message: 'Payment verified' });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { createPaymentIntent, handleWebhook, refund };
+module.exports = { createPaymentOrder, verifyPayment };

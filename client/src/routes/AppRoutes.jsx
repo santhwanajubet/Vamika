@@ -19,6 +19,7 @@ import AdminProducts from '../pages/admin/AdminProducts';
 import AdminProductForm from '../pages/admin/AdminProductForm';
 import AdminOrders from '../pages/admin/AdminOrders';
 import AdminCoupons from '../pages/admin/AdminCoupons';
+import AdminReviews from '../pages/admin/AdminReviews';
 import Spinner from '../components/ui/Spinner';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -59,6 +60,7 @@ export default function AppRoutes() {
           <Route path="products/:id" element={<AdminProductForm />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="reviews" element={<AdminReviews />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" />} />

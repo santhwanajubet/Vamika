@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createProduct, updateProduct, getProduct } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
+import api from '../../api/axios';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 
@@ -15,6 +16,8 @@ export default function AdminProductForm() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef(null);
   const [form, setForm] = useState({
     name: '', description: '', price: '', comparePrice: '', costPrice: '',
     category: '', material: '', workType: '', occasion: '', length: '',
@@ -64,6 +67,27 @@ export default function AdminProductForm() {
   const removeImage = (idx) => {
     const imgs = form.images.filter((_, i) => i !== idx);
     setForm((f) => ({ ...f, images: imgs.length ? imgs : [''] }));
+  };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await api.post('/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const url = res.data.data.url;
+      const imgs = form.images.filter(Boolean);
+      imgs.push(url);
+      imgs.push('');
+      setForm((f) => ({ ...f, images: imgs }));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
   };
 
   const updateVariant = (idx, field, value) => {
@@ -212,6 +236,19 @@ export default function AdminProductForm() {
           </div>
         </div>
 
+          <div>
+          <label className="block text-sm font-medium mb-1">Or paste image URLs</label>
+          {form.images.map((img, i) => (
+            <div key={i} className="flex gap-2 mb-2">
+              <input className="flex-1 border rounded px-3 py-2 text-sm" placeholder="Image URL" value={img}
+                onChange={(e) => updateImage(i, e.target.value)} />
+              {form.images.length > 1 && (
+                <button type="button" onClick={() => removeImage(i)} className="text-red-500 text-sm">Remove</button>
+              )}
+            </div>
+          ))}
+        </div>
+
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.featured}
@@ -226,16 +263,30 @@ export default function AdminProductForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Images (URLs)</label>
-          {form.images.map((img, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <input className="flex-1 border rounded px-3 py-2 text-sm" placeholder="Image URL" value={img}
-                onChange={(e) => updateImage(i, e.target.value)} />
-              {form.images.length > 1 && (
-                <button type="button" onClick={() => removeImage(i)} className="text-red-500 text-sm">Remove</button>
-              )}
-            </div>
-          ))}
+          <label className="block text-sm font-medium mb-2">Images</label>
+          <div className="flex flex-wrap gap-3 mb-3">
+            {form.images.filter(Boolean).map((img, i) => (
+              <div key={i} className="relative w-24 h-24 rounded border overflow-hidden group">
+                <img src={img} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(i)}
+                  className="absolute top-0.5 right-0.5 bg-red-600 text-white text-xs w-5 h-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >×</button>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleUpload}
+              className="text-sm"
+            />
+            {uploading && <Spinner size="sm" />}
+          </div>
+          <p className="text-xs text-gray-400 mt-1">Max 5MB per image. Uploaded via Cloudinary.</p>
         </div>
 
         <div>

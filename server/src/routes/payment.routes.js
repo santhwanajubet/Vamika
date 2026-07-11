@@ -1,11 +1,10 @@
-const { Router, raw } = require('express');
-const { createPaymentIntent, handleWebhook, refund } = require('../controllers/payment.controller');
-const { protect, admin } = require('../middleware/auth');
+const { Router } = require('express');
+const { createPaymentOrder, verifyPayment } = require('../controllers/payment.controller');
+const { protect } = require('../middleware/auth');
 
 const router = Router();
 
-router.post('/create-payment-intent', protect, createPaymentIntent);
-router.post('/webhook', raw({ type: 'application/json' }), handleWebhook);
-router.post('/refund', protect, admin, refund);
+router.post('/create-order', protect, createPaymentOrder);
+router.post('/verify', protect, verifyPayment);
 
 module.exports = router;

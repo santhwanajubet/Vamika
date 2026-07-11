@@ -9,6 +9,7 @@ const ADMIN_LINKS = [
   { to: '/admin/products/new', label: 'New Product' },
   { to: '/admin/orders', label: 'Orders' },
   { to: '/admin/coupons', label: 'Coupons' },
+  { to: '/admin/reviews', label: 'Reviews' },
 ];
 
 export default function AdminDashboard() {
