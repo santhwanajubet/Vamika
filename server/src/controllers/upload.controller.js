@@ -6,7 +6,7 @@ const uploadSingle = async (req, res, next) => {
     if (!req.file) throw ApiError.badRequest('No file uploaded');
 
     const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'laspero/products',
+      folder: 'vamika/products',
       transformation: [{ width: 1200, height: 1200, crop: 'limit', quality: 'auto' }],
     });
 
@@ -28,7 +28,7 @@ const uploadMultiple = async (req, res, next) => {
     const uploads = await Promise.all(
       req.files.map((file) =>
         cloudinary.uploader.upload(file.path, {
-          folder: 'laspero/products',
+          folder: 'vamika/products',
           transformation: [{ width: 1200, height: 1200, crop: 'limit', quality: 'auto' }],
         })
       )

@@ -8,16 +8,16 @@ const seed = async () => {
   await connectDB();
 
   // ─── Admin user ────────────────────────────────
-  const admin = await User.findOne({ email: 'admin@laspero.com' });
+  const admin = await User.findOne({ email: 'admin@vamika.com' });
   if (!admin) {
     await User.create({
       name: 'Admin',
-      email: 'admin@laspero.com',
+      email: 'admin@vamika.com',
       password: 'admin123',
       role: 'admin',
       isVerified: true,
     });
-    console.log('✓ Admin user created (admin@laspero.com / admin123)');
+    console.log('✓ Admin user created (admin@vamika.com / admin123)');
   } else {
     console.log('→ Admin user already exists');
   }
@@ -274,7 +274,7 @@ const seed = async () => {
 
   console.log(`\n── Seed complete ──`);
   console.log(`  ${productCount} products created`);
-  console.log(`  Admin login: admin@laspero.com / admin123`);
+  console.log(`  Admin login: admin@vamika.com / admin123`);
   process.exit(0);
 };
 
