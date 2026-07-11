@@ -6,8 +6,8 @@ const router = Router();
 
 router.get('/', protect, getCart);
 router.post('/items', protect, addItem);
-router.put('/items/:itemId', protect, updateItem);
-router.delete('/items/:itemId', protect, removeItem);
+router.put('/items/:variantSku', protect, updateItem);
+router.delete('/items/:variantSku', protect, removeItem);
 router.delete('/', protect, clearCart);
 router.post('/merge', protect, mergeCart);
 

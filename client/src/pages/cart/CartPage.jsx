@@ -18,7 +18,7 @@ export default function CartPage() {
     if (pendingItem) return;
     const newQty = item.quantity + delta;
     if (user) {
-      dispatch(updateItem({ itemId: item._id, quantity: newQty }));
+      dispatch(updateItem({ variantSku: item.variantSku, quantity: newQty }));
     } else {
       dispatch(updateGuestItem({ variantSku: item.variantSku, quantity: newQty }));
     }
@@ -27,7 +27,7 @@ export default function CartPage() {
   const handleRemove = (item) => {
     if (pendingItem) return;
     if (user) {
-      dispatch(removeItem(item._id));
+      dispatch(removeItem(item.variantSku));
     } else {
       dispatch(removeGuestItem(item.variantSku));
     }
@@ -35,7 +35,7 @@ export default function CartPage() {
 
   const isPending = (item) => {
     if (!user) return false;
-    return pendingItem === item._id;
+    return pendingItem === item.variantSku;
   };
 
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);

@@ -57,24 +57,26 @@ const addItem = async (req, res, next) => {
 const updateItem = async (req, res, next) => {
   try {
     const { quantity } = req.body;
+    const { variantSku } = req.params;
 
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) throw ApiError.notFound('Cart not found');
 
-    const item = cart.items.id(req.params.itemId);
+    const item = cart.items.find((i) => i.variantSku === variantSku);
     if (!item) throw ApiError.notFound('Item not found in cart');
 
-    const product = await Product.findById(item.product);
-    if (!product) throw ApiError.notFound('Product not found');
+    if (quantity <= 0) {
+      cart.items = cart.items.filter((i) => i.variantSku !== variantSku);
+    } else {
+      const product = await Product.findById(item.product);
+      if (!product) throw ApiError.notFound('Product not found');
 
-    const variant = product.variants.find((v) => v.sku === item.variantSku);
-    if (variant && quantity > variant.stock) {
-      throw ApiError.badRequest('Insufficient stock');
-    }
+      const variant = product.variants.find((v) => v.sku === variantSku);
+      if (variant && quantity > variant.stock) {
+        throw ApiError.badRequest('Insufficient stock');
+      }
 
-    item.quantity = quantity;
-    if (item.quantity <= 0) {
-      cart.items.pull(item._id);
+      item.quantity = quantity;
     }
 
     await cart.save();
@@ -91,7 +93,7 @@ const removeItem = async (req, res, next) => {
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) throw ApiError.notFound('Cart not found');
 
-    cart.items.pull(req.params.itemId);
+    cart.items = cart.items.filter((i) => i.variantSku !== req.params.variantSku);
     await cart.save();
     await cart.populate('items.product', 'name slug price images variants');
 
