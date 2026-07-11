@@ -213,7 +213,7 @@ export default function ProductPage() {
             <div className="flex items-center gap-2">
               <button onClick={() => setQty(Math.max(1, qty - 1))} className="border px-2 py-1 rounded">-</button>
               <span className="w-8 text-center">{qty}</span>
-              <button onClick={() => setQty(qty + 1)} className="border px-2 py-1 rounded">+</button>
+              <button onClick={() => setQty(qty + 1)} disabled={qty >= (currentVariant?.stock || 0)} className="border px-2 py-1 rounded disabled:opacity-40">+</button>
             </div>
           </div>
 
