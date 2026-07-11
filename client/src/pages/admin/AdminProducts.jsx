@@ -53,7 +53,14 @@ export default function AdminProducts() {
   return (
     <div className="flex-1 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Products</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl font-bold">Products</h2>
+          {products.length > 0 && (
+            <button onClick={toggleSelectAll} className="text-sm text-gray-500 underline hover:text-black">
+              {selected.size === products.length ? 'Deselect All' : 'Select All'}
+            </button>
+          )}
+        </div>
         <div className="flex gap-2">
           {selected.size > 0 && (
             <Button variant="danger" onClick={handleBulkDelete}>
