@@ -12,6 +12,9 @@ export default function ShopPage() {
   const [params, setParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [availableMaterials, setAvailableMaterials] = useState([]);
+  const [availableOccasions, setAvailableOccasions] = useState([]);
+  const [categoryIds, setCategoryIds] = useState(new Set());
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [wishlistIds, setWishlistIds] = useState(new Set());
@@ -28,7 +31,24 @@ export default function ShopPage() {
 
   useEffect(() => { fetchProducts(); }, [params]);
   useEffect(() => {
-    getCategories().then((res) => setCategories(res.data.data.categories));
+    getCategories().then((res) => {
+      const cats = res.data.data.categories;
+      setCategories(cats);
+      getProducts({ limit: 500 }).then((allRes) => {
+        const allProducts = allRes.data.data.products;
+        const mats = new Set();
+        const occs = new Set();
+        const catIds = new Set();
+        allProducts.forEach((p) => {
+          if (p.material) mats.add(p.material);
+          if (p.occasion) occs.add(p.occasion);
+          if (p.category?._id) catIds.add(p.category._id);
+        });
+        setAvailableMaterials([...mats].sort());
+        setAvailableOccasions([...occs].sort());
+        setCategoryIds(catIds);
+      });
+    });
     if (user) {
       getWishlist().then((res) => {
         const ids = res.data.data.wishlist?.products?.map((p) => p._id) || [];
@@ -68,7 +88,7 @@ export default function ShopPage() {
           <button onClick={() => setParams(new URLSearchParams())} className="block hover:underline">
             All
           </button>
-          {categories.map((c) => (
+          {categories.filter((c) => categoryIds.has(c._id)).map((c) => (
             <button key={c._id} onClick={() => updateParam('category', c._id)} className="block hover:underline">
               {c.name}
             </button>
@@ -95,13 +115,13 @@ export default function ShopPage() {
 
         <h3 className="font-semibold mt-6 mb-3">Material</h3>
         <div className="space-y-2 text-sm">
-          {['Silk', 'Cotton', 'Georgette', 'Chiffon', 'Linen', 'Kodi'].map((m) => (
+          {availableMaterials.map((m) => (
             <label key={m} className="flex items-center gap-2">
               <input
                 type="radio"
                 name="material"
-                checked={params.get('material') === m.toLowerCase()}
-                onChange={() => updateParam('material', params.get('material') === m.toLowerCase() ? '' : m.toLowerCase())}
+                checked={params.get('material') === m}
+                onChange={() => updateParam('material', params.get('material') === m ? '' : m)}
               />
               {m}
             </label>
@@ -110,11 +130,11 @@ export default function ShopPage() {
 
         <h3 className="font-semibold mt-6 mb-3">Occasion</h3>
         <div className="flex flex-wrap gap-2 text-sm">
-          {['Wedding', 'Festive', 'Casual', 'Party', 'Daily Wear'].map((o) => (
+          {availableOccasions.map((o) => (
             <button
               key={o}
-              onClick={() => updateParam('occasion', params.get('occasion') === o.toLowerCase() ? '' : o.toLowerCase())}
-              className={`px-2 py-1 rounded border ${params.get('occasion') === o.toLowerCase() ? 'bg-black text-white' : ''}`}
+              onClick={() => updateParam('occasion', params.get('occasion') === o ? '' : o)}
+              className={`px-2 py-1 rounded border ${params.get('occasion') === o ? 'bg-black text-white' : ''}`}
             >
               {o}
             </button>
