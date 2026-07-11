@@ -1,5 +1,7 @@
+const crypto = require('crypto');
 const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
+const { sendPasswordResetEmail } = require('../services/email.service');
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -154,4 +156,53 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, logout, refresh, getMe, updateProfile };
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.json({ success: true, message: 'If an account exists, a reset email has been sent' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/reset-password/${resetToken}`;
+    await sendPasswordResetEmail(user.email, resetUrl);
+
+    res.json({ success: true, message: 'If an account exists, a reset email has been sent' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    }).select('+resetPasswordToken +resetPasswordExpire');
+
+    if (!user) {
+      throw ApiError.badRequest('Invalid or expired reset token');
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, logout, refresh, getMe, updateProfile, forgotPassword, resetPassword };

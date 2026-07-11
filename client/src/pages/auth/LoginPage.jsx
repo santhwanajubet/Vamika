@@ -43,6 +43,9 @@ export default function LoginPage() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
         </div>
+        <div className="flex justify-end">
+          <Link to="/auth/forgot-password" className="text-xs text-gray-500 underline">Forgot password?</Link>
+        </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? <Spinner size="sm" /> : 'Sign In'}

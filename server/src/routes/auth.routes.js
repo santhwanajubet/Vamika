@@ -6,6 +6,8 @@ const {
   refresh,
   getMe,
   updateProfile,
+  forgotPassword,
+  resetPassword,
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
@@ -13,6 +15,8 @@ const {
   registerRules,
   loginRules,
   updateProfileRules,
+  forgotPasswordRules,
+  resetPasswordRules,
 } = require('../validators/auth.validator');
 
 const router = Router();
@@ -92,6 +96,43 @@ const router = Router();
  *     responses:
  *       200:
  *         description: Profile updated
+ * /api/auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Request password reset email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Reset email sent
+ * /api/auth/reset-password/{token}:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Reset password with token
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [password]
+ *             properties:
+ *               password: { type: string, minLength: 6 }
+ *     responses:
+ *       200:
+ *         description: Password reset successful
  */
 router.post('/register', validate(registerRules), register);
 router.post('/login', validate(loginRules), login);
@@ -99,5 +140,7 @@ router.post('/logout', logout);
 router.post('/refresh', refresh);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, validate(updateProfileRules), updateProfile);
+router.post('/forgot-password', validate(forgotPasswordRules), forgotPassword);
+router.post('/reset-password/:token', validate(resetPasswordRules), resetPassword);
 
 module.exports = router;
