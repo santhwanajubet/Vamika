@@ -171,7 +171,7 @@ export default function AdminProductForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Compare Price</label>
+            <label className="block text-sm font-medium mb-1">Offer Price</label>
             <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-sm" value={form.offerPrice}
               onChange={(e) => updateField('offerPrice', e.target.value)} />
           </div>
