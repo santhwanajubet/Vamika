@@ -16,7 +16,7 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 import AccountPage from '../pages/account/AccountPage';
-import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminDashboard, { AdminOverview } from '../pages/admin/AdminDashboard';
 import AdminProducts from '../pages/admin/AdminProducts';
 import AdminProductForm from '../pages/admin/AdminProductForm';
 import AdminOrders from '../pages/admin/AdminOrders';
@@ -69,6 +69,7 @@ export default function AppRoutes() {
         <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
 
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>}>
+          <Route index element={<AdminOverview />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="products/new" element={<AdminProductForm />} />

@@ -17,31 +17,23 @@ const ADMIN_LINKS = [
 
 export default function AdminDashboard() {
   const location = useLocation();
-  const isRoot = location.pathname === '/admin';
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!isRoot) return <Outlet />;
-
-  return <AdminOverview />;
-}
-
-function AdminOverview() {
-  const [summary, setSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getSummary()
-      .then((res) => setSummary(res.data.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <Spinner className="mt-32" />;
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex gap-8">
-        <aside className="w-56 shrink-0">
-          <h1 className="text-xl font-bold mb-6">Admin</h1>
-          <nav className="space-y-1 text-sm">
+    <div className="min-h-screen bg-gray-50">
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      <aside className={`${sidebarOpen ? 'fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg overflow-y-auto' : 'hidden'} md:static md:block md:w-56 md:shrink-0 md:bg-transparent md:shadow-none`}>
+        <div className="p-4 border-b md:border-0 md:pt-6">
+          <div className="flex items-center justify-between">
+            <Link to="/admin" className="text-lg font-bold">Admin</Link>
+            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500 hover:text-black text-xl leading-none">&times;</button>
+          </div>
+          <nav className="mt-4 space-y-0.5 text-sm">
             {ADMIN_LINKS.map((l) => {
               const active = l.exact ? location.pathname === l.to : location.pathname.startsWith(l.to);
               return (
@@ -51,17 +43,47 @@ function AdminOverview() {
               );
             })}
           </nav>
-        </aside>
-
-        <div className="flex-1 px-4">
-          <h2 className="text-2xl font-bold mb-6">Overview</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Total Revenue" value={`₹${summary?.totalRevenue?.toFixed(2) || '0.00'}`} />
-            <StatCard label="Orders" value={summary?.totalOrders || 0} />
-            <StatCard label="Users" value={summary?.totalUsers || 0} />
-            <StatCard label="Active Products" value={summary?.activeProducts || 0} />
-          </div>
         </div>
+      </aside>
+
+      <div className="flex-1">
+        <div className="md:hidden sticky top-0 z-20 bg-white border-b px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="text-gray-700">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <span className="font-semibold text-sm">Admin</span>
+        </div>
+
+        <div className="p-4 md:p-6 md:pt-6">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function AdminOverview() {
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSummary()
+      .then((res) => setSummary(res.data.data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Spinner className="mt-16" />;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6">Overview</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Total Revenue" value={`₹${summary?.totalRevenue?.toFixed(2) || '0.00'}`} />
+        <StatCard label="Orders" value={summary?.totalOrders || 0} />
+        <StatCard label="Users" value={summary?.totalUsers || 0} />
+        <StatCard label="Active Products" value={summary?.activeProducts || 0} />
       </div>
     </div>
   );

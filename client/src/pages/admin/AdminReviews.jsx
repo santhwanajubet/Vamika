@@ -38,7 +38,7 @@ export default function AdminReviews() {
   if (loading) return <Spinner className="mt-16" />;
 
   return (
-    <div className="flex-1 px-4">
+    <div>
       <h2 className="text-2xl font-bold mb-6">Reviews</h2>
 
       {reviews.length === 0 ? (

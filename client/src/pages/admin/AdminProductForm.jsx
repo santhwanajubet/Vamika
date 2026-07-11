@@ -147,7 +147,7 @@ export default function AdminProductForm() {
   if (loading) return <Spinner className="mt-16" />;
 
   return (
-    <div className="flex-1 max-w-3xl px-4">
+    <div className="max-w-3xl">
       <h2 className="text-2xl font-bold mb-6">{isEdit ? 'Edit Product' : 'New Product'}</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">

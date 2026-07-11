@@ -51,8 +51,8 @@ export default function AdminProducts() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="flex-1 px-4">
-      <div className="flex justify-between items-center mb-6">
+    <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold">Products</h2>
           {products.length > 0 && (
@@ -61,7 +61,7 @@ export default function AdminProducts() {
             </button>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {selected.size > 0 && (
             <Button variant="danger" onClick={handleBulkDelete}>
               Archive Selected ({selected.size})

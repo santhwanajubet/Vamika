@@ -24,7 +24,7 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="flex-1 px-4">
+    <div>
       <h2 className="text-2xl font-bold mb-6">Orders</h2>
       {loading ? (
         <Spinner />

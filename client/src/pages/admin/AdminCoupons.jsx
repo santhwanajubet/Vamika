@@ -33,7 +33,7 @@ export default function AdminCoupons() {
   };
 
   return (
-    <div className="flex-1 px-4">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Coupons</h2>
         <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Coupon'}</Button>
