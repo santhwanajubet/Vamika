@@ -1,20 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { loginUser, registerUser, logoutUser, getMe, updateProfile } from '../api/authApi';
+import { mergeGuestCart } from './cartSlice';
 
-export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue }) => {
+export const login = createAsyncThunk('auth/login', async (data, { dispatch, rejectWithValue }) => {
   try {
     const res = await loginUser(data);
     localStorage.setItem('accessToken', res.data.data.accessToken);
+    dispatch(mergeGuestCart());
     return res.data.data.user;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Login failed');
   }
 });
 
-export const register = createAsyncThunk('auth/register', async (data, { rejectWithValue }) => {
+export const register = createAsyncThunk('auth/register', async (data, { dispatch, rejectWithValue }) => {
   try {
     const res = await registerUser(data);
     localStorage.setItem('accessToken', res.data.data.accessToken);
+    dispatch(mergeGuestCart());
     return res.data.data.user;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Registration failed');

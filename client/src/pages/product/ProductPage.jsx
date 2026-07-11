@@ -5,6 +5,7 @@ import { getProduct, getRelated } from '../../api/productApi';
 import { getProductReviews, createReview } from '../../api/reviewApi';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../../api/wishlistApi';
 import { addItem } from '../../features/cartSlice';
+import { addGuestItem } from '../../features/cartSlice';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import WishlistButton from '../../components/ui/WishlistButton';
@@ -91,7 +92,18 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!currentVariant) return;
-    dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty }));
+    if (user) {
+      dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty }));
+    } else {
+      dispatch(addGuestItem({
+        productId: product._id,
+        variantSku: currentVariant.sku,
+        quantity: qty,
+        price: product.price,
+        name: product.name,
+        image: product.images[0] || '',
+      }));
+    }
   };
 
   const handleToggleWishlist = async (id) => {
