@@ -25,6 +25,9 @@ import AdminReviews from '../pages/admin/AdminReviews';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminCategories from '../pages/admin/AdminCategories';
 import AdminAnalytics from '../pages/admin/AdminAnalytics';
+import PrivacyPage from '../pages/legal/PrivacyPage';
+import TermsPage from '../pages/legal/TermsPage';
+import ContactPage from '../pages/legal/ContactPage';
 import Spinner from '../components/ui/Spinner';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -54,6 +57,10 @@ export default function AppRoutes() {
         <Route path="/auth/register" element={<RegisterPage />} />
         <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/auth/reset-password/:token" element={<ResetPasswordPage />} />
+
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
 
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
