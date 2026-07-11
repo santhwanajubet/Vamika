@@ -5,11 +5,14 @@ import Spinner from '../../components/ui/Spinner';
 
 const ADMIN_LINKS = [
   { to: '/admin', label: 'Dashboard', exact: true },
+  { to: '/admin/analytics', label: 'Analytics' },
   { to: '/admin/products', label: 'Products' },
   { to: '/admin/products/new', label: 'New Product' },
   { to: '/admin/orders', label: 'Orders' },
   { to: '/admin/coupons', label: 'Coupons' },
   { to: '/admin/reviews', label: 'Reviews' },
+  { to: '/admin/categories', label: 'Categories' },
+  { to: '/admin/users', label: 'Users' },
 ];
 
 export default function AdminDashboard() {
