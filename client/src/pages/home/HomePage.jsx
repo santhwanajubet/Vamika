@@ -2,22 +2,45 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getFeatured, getNewArrivals } from '../../api/productApi';
+import { getWishlist, addToWishlist, removeFromWishlist } from '../../api/wishlistApi';
 import Spinner from '../../components/ui/Spinner';
+import WishlistButton from '../../components/ui/WishlistButton';
 
 export default function HomePage() {
   const { user } = useSelector((s) => s.auth);
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
 
   useEffect(() => {
     Promise.all([getFeatured(), getNewArrivals()])
       .then(([f, n]) => {
         setFeatured(f.data.data.products);
         setNewArrivals(n.data.data.products);
+        if (user) return getWishlist();
+      })
+      .then((res) => {
+        if (res) {
+          const ids = res.data.data.wishlist?.products?.map((p) => p._id) || [];
+          setWishlistIds(new Set(ids));
+        }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
+
+  const handleToggleWishlist = async (productId) => {
+    if (!user) return;
+    const newSet = new Set(wishlistIds);
+    if (newSet.has(productId)) {
+      await removeFromWishlist(productId);
+      newSet.delete(productId);
+    } else {
+      await addToWishlist(productId);
+      newSet.add(productId);
+    }
+    setWishlistIds(newSet);
+  };
 
   if (loading) return <Spinner className="mt-32" />;
 
@@ -42,7 +65,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold mb-8">Featured</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {featured.map((p) => (
-            <ProductCard key={p._id} product={p} />
+            <ProductCard key={p._id} product={p} wishlisted={wishlistIds.has(p._id)} onToggleWishlist={handleToggleWishlist} />
           ))}
         </div>
       </section>
@@ -51,7 +74,7 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold mb-8">New Arrivals</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {newArrivals.map((p) => (
-            <ProductCard key={p._id} product={p} />
+            <ProductCard key={p._id} product={p} wishlisted={wishlistIds.has(p._id)} onToggleWishlist={handleToggleWishlist} />
           ))}
         </div>
       </section>
@@ -59,13 +82,14 @@ export default function HomePage() {
   );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, wishlisted, onToggleWishlist }) {
   return (
-    <Link to={`/product/${product.slug}`} className="group">
+    <Link to={`/product/${product.slug}`} className="group relative">
       <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
         {product.images[0] && (
           <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
         )}
+        <WishlistButton productId={product._id} wishlisted={wishlisted} onToggle={() => onToggleWishlist(product._id)} />
       </div>
       <h3 className="font-medium text-sm">{product.name}</h3>
       <p className="text-sm text-gray-500">

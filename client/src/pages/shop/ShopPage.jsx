@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { getProducts } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
+import { getWishlist, addToWishlist, removeFromWishlist } from '../../api/wishlistApi';
 import Spinner from '../../components/ui/Spinner';
+import WishlistButton from '../../components/ui/WishlistButton';
 
 export default function ShopPage() {
+  const { user } = useSelector((s) => s.auth);
   const [params, setParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
 
   const fetchProducts = () => {
     setLoading(true);
@@ -22,7 +27,28 @@ export default function ShopPage() {
   };
 
   useEffect(() => { fetchProducts(); }, [params]);
-  useEffect(() => { getCategories().then((res) => setCategories(res.data.data.categories)); }, []);
+  useEffect(() => {
+    getCategories().then((res) => setCategories(res.data.data.categories));
+    if (user) {
+      getWishlist().then((res) => {
+        const ids = res.data.data.wishlist?.products?.map((p) => p._id) || [];
+        setWishlistIds(new Set(ids));
+      });
+    }
+  }, [user]);
+
+  const handleToggleWishlist = async (productId) => {
+    if (!user) return;
+    const newSet = new Set(wishlistIds);
+    if (newSet.has(productId)) {
+      await removeFromWishlist(productId);
+      newSet.delete(productId);
+    } else {
+      await addToWishlist(productId);
+      newSet.add(productId);
+    }
+    setWishlistIds(newSet);
+  };
 
   const updateParam = (key, value) => {
     const next = new URLSearchParams(params);
@@ -125,11 +151,12 @@ export default function ShopPage() {
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {products.map((p) => (
-                <Link key={p._id} to={`/product/${p.slug}`} className="group">
+                <Link key={p._id} to={`/product/${p.slug}`} className="group relative">
                   <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
                     {p.images[0] && (
                       <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                     )}
+                    <WishlistButton productId={p._id} wishlisted={wishlistIds.has(p._id)} onToggle={() => handleToggleWishlist(p._id)} />
                   </div>
                   <h3 className="font-medium text-sm">{p.name}</h3>
                   <p className="text-sm text-gray-500">₹{p.price}</p>

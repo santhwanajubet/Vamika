@@ -3,9 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProduct, getRelated } from '../../api/productApi';
 import { getProductReviews, createReview } from '../../api/reviewApi';
+import { getWishlist, addToWishlist, removeFromWishlist } from '../../api/wishlistApi';
 import { addItem } from '../../features/cartSlice';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import WishlistButton from '../../components/ui/WishlistButton';
 
 function Stars({ rating, interactive, onChange }) {
   return (
@@ -39,12 +41,16 @@ export default function ProductPage() {
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const [form, setForm] = useState({ rating: 0, title: '', comment: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistIds, setWishlistIds] = useState(new Set());
 
   useEffect(() => {
     setLoading(true);
+    let productId;
     getProduct(slug)
       .then((res) => {
         const p = res.data.data.product;
+        productId = p._id;
         setProduct(p);
         if (p.variants.length > 0) {
           setSelectedColor(p.variants[0].color);
@@ -55,6 +61,17 @@ export default function ProductPage() {
       .then(([relatedRes, reviewsRes]) => {
         setRelated(relatedRes.data.data.products);
         setReviews(reviewsRes.data.data.reviews);
+        if (user) {
+          return getWishlist();
+        }
+      })
+      .then((wishlistRes) => {
+        if (wishlistRes) {
+          const ids = wishlistRes.data.data.wishlist?.products?.map((p) => p._id) || [];
+          const idSet = new Set(ids);
+          setWishlistIds(idSet);
+          setWishlisted(idSet.has(productId));
+        }
       })
       .finally(() => setLoading(false));
   }, [slug]);
@@ -75,6 +92,22 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!currentVariant) return;
     dispatch(addItem({ productId: product._id, variantSku: currentVariant.sku, quantity: qty }));
+  };
+
+  const handleToggleWishlist = async (id) => {
+    if (!user) return;
+    try {
+      const newSet = new Set(wishlistIds);
+      if (newSet.has(id)) {
+        await removeFromWishlist(id);
+        newSet.delete(id);
+      } else {
+        await addToWishlist(id);
+        newSet.add(id);
+      }
+      setWishlistIds(newSet);
+      if (id === product._id) setWishlisted(newSet.has(id));
+    } catch {}
   };
 
   const handleSubmitReview = async (e) => {
@@ -99,10 +132,11 @@ export default function ProductPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid md:grid-cols-2 gap-12">
         <div>
-          <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
+          <div className="relative aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
             {product.images[activeImage] && (
               <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
             )}
+            <WishlistButton productId={product._id} wishlisted={wishlisted} onToggle={() => handleToggleWishlist(product._id)} />
           </div>
           {product.images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
@@ -251,11 +285,12 @@ export default function ProductPage() {
           <h2 className="text-xl font-bold mb-6">You May Also Like</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {related.map((p) => (
-              <Link key={p._id} to={`/product/${p.slug}`} className="group">
+              <Link key={p._id} to={`/product/${p.slug}`} className="group relative">
                 <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
                   {p.images[0] && (
                     <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                   )}
+                  <WishlistButton productId={p._id} wishlisted={wishlistIds.has(p._id)} onToggle={() => handleToggleWishlist(p._id)} />
                 </div>
                 <h3 className="font-medium text-sm">{p.name}</h3>
                 <p className="text-sm text-gray-500">₹{p.price}</p>
