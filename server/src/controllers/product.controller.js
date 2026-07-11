@@ -164,7 +164,20 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
+const bulkDeleteProducts = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      throw ApiError.badRequest('Provide an array of product IDs');
+    }
+    const result = await Product.updateMany({ _id: { $in: ids } }, { isActive: false });
+    res.json({ success: true, message: `${result.modifiedCount} products archived` });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProducts, getProduct, getFeatured, getNewArrivals, getRelated,
-  createProduct, updateProduct, deleteProduct,
+  createProduct, updateProduct, deleteProduct, bulkDeleteProducts,
 };

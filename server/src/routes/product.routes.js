@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const {
   getProducts, getProduct, getFeatured, getNewArrivals, getRelated,
-  createProduct, updateProduct, deleteProduct,
+  createProduct, updateProduct, deleteProduct, bulkDeleteProducts,
 } = require('../controllers/product.controller');
 const { protect, admin } = require('../middleware/auth');
 
@@ -96,6 +96,7 @@ router.get('/new-arrivals', getNewArrivals);
 router.get('/related/:id', getRelated);
 router.get('/:slug', getProduct);
 router.post('/', protect, admin, createProduct);
+router.post('/bulk-delete', protect, admin, bulkDeleteProducts);
 router.put('/:id', protect, admin, updateProduct);
 router.delete('/:id', protect, admin, deleteProduct);
 
