@@ -173,9 +173,9 @@ export default function ProductPage() {
           <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
           <p className="text-2xl font-semibold mb-4">
             {product.offerPrice && (
-              <span className="line-through text-gray-400 text-lg mr-2">₹{product.offerPrice}</span>
+              <span className="line-through text-gray-400 text-lg mr-2">₹{product.price}</span>
             )}
-            ₹{product.price}
+            ₹{product.offerPrice || product.price}
           </p>
 
           <div className="mb-4">

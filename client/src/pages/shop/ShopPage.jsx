@@ -159,7 +159,10 @@ export default function ShopPage() {
                     <WishlistButton productId={p._id} wishlisted={wishlistIds.has(p._id)} onToggle={() => handleToggleWishlist(p._id)} />
                   </div>
                   <h3 className="font-medium text-sm">{p.name}</h3>
-                  <p className="text-sm text-gray-500">₹{p.price}</p>
+                  <p className="text-sm text-gray-500">
+                    {p.offerPrice && <span className="line-through mr-2">₹{p.price}</span>}
+                    ₹{p.offerPrice || p.price}
+                  </p>
                 </Link>
               ))}
             </div>

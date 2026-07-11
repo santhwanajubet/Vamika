@@ -35,7 +35,10 @@ export default function WishlistPage() {
                 </div>
               </Link>
               <h3 className="font-medium text-sm">{p.name}</h3>
-              <p className="text-sm text-gray-500">₹{p.price}</p>
+              <p className="text-sm text-gray-500">
+                {p.offerPrice && <span className="line-through mr-2">₹{p.price}</span>}
+                ₹{p.offerPrice || p.price}
+              </p>
               <button onClick={() => handleRemove(p._id)} className="text-xs text-red-500 mt-1 hover:underline">
                 Remove
               </button>

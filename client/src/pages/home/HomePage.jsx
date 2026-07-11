@@ -94,9 +94,9 @@ function ProductCard({ product, wishlisted, onToggleWishlist }) {
       <h3 className="font-medium text-sm">{product.name}</h3>
       <p className="text-sm text-gray-500">
         {product.offerPrice && (
-          <span className="line-through mr-2">₹{product.offerPrice}</span>
+          <span className="line-through mr-2">₹{product.price}</span>
         )}
-        ₹{product.price}
+        ₹{product.offerPrice || product.price}
       </p>
     </Link>
   );
