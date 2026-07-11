@@ -73,7 +73,7 @@ export const mergeGuestCart = createAsyncThunk('cart/mergeGuest', async (_, { ge
 
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: { items: loadGuestCart(), loading: false, error: null },
+  initialState: { items: loadGuestCart(), loading: false, error: null, pendingItem: null },
   reducers: {
     addGuestItem: (state, action) => {
       const idx = state.items.findIndex((i) => i.variantSku === action.payload.variantSku);
@@ -101,10 +101,16 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCart.fulfilled, (s, a) => { s.items = a.payload.items || []; })
-      .addCase(addItem.fulfilled, (s, a) => { s.items = a.payload.items || []; })
-      .addCase(updateItem.fulfilled, (s, a) => { s.items = a.payload.items || []; })
-      .addCase(removeItem.fulfilled, (s, a) => { s.items = a.payload.items || []; })
+      .addCase(fetchCart.fulfilled, (s, a) => { s.items = a.payload.items || []; s.loading = false; })
+      .addCase(fetchCart.pending, (s) => { s.loading = true; })
+      .addCase(addItem.fulfilled, (s, a) => { s.items = a.payload.items || []; s.loading = false; })
+      .addCase(addItem.pending, (s) => { s.loading = true; })
+      .addCase(updateItem.pending, (s, a) => { s.pendingItem = a.meta.arg.itemId; })
+      .addCase(updateItem.fulfilled, (s, a) => { s.items = a.payload.items || []; s.pendingItem = null; })
+      .addCase(updateItem.rejected, (s) => { s.pendingItem = null; })
+      .addCase(removeItem.pending, (s, a) => { s.pendingItem = a.meta.arg; })
+      .addCase(removeItem.fulfilled, (s, a) => { s.items = a.payload.items || []; s.pendingItem = null; })
+      .addCase(removeItem.rejected, (s) => { s.pendingItem = null; })
       .addCase(clearUserCart.fulfilled, (s) => { s.items = []; })
       .addCase(mergeGuestCart.fulfilled, (s, a) => {
         s.items = a.payload?.items || [];

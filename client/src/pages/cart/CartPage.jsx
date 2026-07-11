@@ -7,7 +7,7 @@ import Spinner from '../../components/ui/Spinner';
 
 export default function CartPage() {
   const dispatch = useDispatch();
-  const { items, loading } = useSelector((s) => s.cart);
+  const { items, loading, pendingItem } = useSelector((s) => s.cart);
   const { user } = useSelector((s) => s.auth);
 
   useEffect(() => {
@@ -15,6 +15,7 @@ export default function CartPage() {
   }, [dispatch, user]);
 
   const handleUpdateQty = (item, delta) => {
+    if (pendingItem) return;
     const newQty = item.quantity + delta;
     if (user) {
       dispatch(updateItem({ itemId: item._id, quantity: newQty }));
@@ -24,11 +25,17 @@ export default function CartPage() {
   };
 
   const handleRemove = (item) => {
+    if (pendingItem) return;
     if (user) {
       dispatch(removeItem(item._id));
     } else {
       dispatch(removeGuestItem(item.variantSku));
     }
+  };
+
+  const isPending = (item) => {
+    if (!user) return false;
+    return pendingItem === item._id;
   };
 
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
@@ -54,7 +61,10 @@ export default function CartPage() {
       )}
       <div className="space-y-4">
         {items.map((item) => (
-          <div key={item._id || item.variantSku} className="flex gap-4 border-b pb-4">
+          <div
+            key={item._id || item.variantSku}
+            className={`flex gap-4 border-b pb-4 transition-opacity ${isPending(item) ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <div className="w-20 h-20 bg-gray-100 rounded shrink-0">
               {(item.product?.images?.[0] || item.image) && (
                 <img src={item.product?.images?.[0] || item.image} alt={item.name} className="w-full h-full object-cover rounded" />
@@ -66,19 +76,25 @@ export default function CartPage() {
               <p className="text-sm font-semibold mt-1">₹{item.price}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleUpdateQty(item, -1)}
-                className="border px-2 py-1 rounded text-sm"
-                disabled={item.quantity <= 1}
-              >-</button>
-              <span className="w-6 text-center text-sm">{item.quantity}</span>
-              <button
-                onClick={() => handleUpdateQty(item, 1)}
-                className="border px-2 py-1 rounded text-sm"
-              >+</button>
-              <button onClick={() => handleRemove(item)} className="text-red-500 text-sm ml-2">
-                Remove
-              </button>
+              {isPending(item) ? (
+                <Spinner size="sm" />
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleUpdateQty(item, -1)}
+                    className="border px-2 py-1 rounded text-sm"
+                    disabled={item.quantity <= 1}
+                  >-</button>
+                  <span className="w-6 text-center text-sm">{item.quantity}</span>
+                  <button
+                    onClick={() => handleUpdateQty(item, 1)}
+                    className="border px-2 py-1 rounded text-sm"
+                  >+</button>
+                  <button onClick={() => handleRemove(item)} className="text-red-500 text-sm ml-2">
+                    Remove
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}
