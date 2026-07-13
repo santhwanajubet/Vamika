@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import api from '../../api/axios';
-import { createOrder } from '../../api/orderApi';
+import { createOrder, cancelOrder as cancelOrderApi } from '../../api/orderApi';
+import { getAddresses, createAddress } from '../../api/addressApi';
 import { validateCoupon } from '../../api/couponApi';
 import { clearUserCart } from '../../features/cartSlice';
 import Button from '../../components/ui/Button';
@@ -37,7 +38,28 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
 
-  useEffect(() => { loadScript('https://checkout.razorpay.com/v1/checkout.js'); }, []);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddrId, setSelectedAddrId] = useState(null);
+  const [saveAddress, setSaveAddress] = useState(false);
+
+  useEffect(() => {
+    loadScript('https://checkout.razorpay.com/v1/checkout.js');
+    getAddresses().then((res) => {
+      const addrs = res.data.data.addresses;
+      setSavedAddresses(addrs);
+      const def = addrs.find((a) => a.isDefault);
+      if (def) {
+        setAddress({ fullName: def.fullName, phone: def.phone, line1: def.line1, city: def.city, state: def.state, zipCode: def.zipCode, country: def.country || 'India' });
+        setSelectedAddrId(def._id);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const selectAddress = (a) => {
+    setAddress({ fullName: a.fullName, phone: a.phone, line1: a.line1, city: a.city, state: a.state, zipCode: a.zipCode, country: a.country || 'India' });
+    setSelectedAddrId(a._id);
+    setErrors({});
+  };
 
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
   const shipping = subtotal >= 2500 ? 0 : 99;
@@ -80,6 +102,12 @@ export default function CheckoutPage() {
     setError('');
 
     try {
+      if (saveAddress && !selectedAddrId) {
+        try {
+          await createAddress({ ...address, label: 'Home', isDefault: savedAddresses.length === 0 });
+        } catch {}
+      }
+
       const { data: orderRes } = await createOrder({
         shippingAddress: address,
         paymentMethod: 'razorpay',
@@ -111,7 +139,10 @@ export default function CheckoutPage() {
             setLoading(false);
           }
         },
-        modal: { ondismiss: () => setLoading(false) },
+        modal: { ondismiss: async () => {
+          setLoading(false);
+          try { await cancelOrderApi(order._id, { reason: 'Payment cancelled' }); } catch {}
+        } },
         prefill: { name: address.fullName, contact: address.phone },
         theme: { color: '#000' },
       });
@@ -135,6 +166,30 @@ export default function CheckoutPage() {
       <div>
         <h1 className="text-2xl font-bold mb-6">Shipping Address</h1>
         <form onSubmit={handleSubmit} className="space-y-3">
+          {savedAddresses.length > 0 && (
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2">Saved Addresses</p>
+              <div className="space-y-2">
+                {savedAddresses.map((a) => (
+                  <label key={a._id} className={`flex items-start gap-3 border rounded p-3 text-sm cursor-pointer ${selectedAddrId === a._id ? 'border-black ring-1 ring-black' : 'border-gray-200 hover:border-gray-400'}`}>
+                    <input type="radio" name="savedAddress" checked={selectedAddrId === a._id}
+                      onChange={() => selectAddress(a)} className="mt-0.5 accent-black" />
+                    <div>
+                      <span className="font-medium">{a.label}</span>
+                      {a.isDefault && <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded">Default</span>}
+                      <p className="text-gray-600">{a.fullName}, {a.line1}{a.line2 ? `, ${a.line2}` : ''}, {a.city}, {a.state} {a.zipCode}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <span className="border-t flex-1"></span>
+                <span>or enter manually</span>
+                <span className="border-t flex-1"></span>
+              </div>
+            </div>
+          )}
+
           <div>
             <input type="text" placeholder="Full Name" required className={inputClass('fullName')}
               value={address.fullName} onChange={(e) => setAddress({ ...address, fullName: e.target.value })} />
@@ -174,6 +229,14 @@ export default function CheckoutPage() {
               <FieldError message={errors.country} />
             </div>
           </div>
+
+          {!selectedAddrId && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} className="rounded accent-black" />
+              Save this address for future orders
+            </label>
+          )}
+
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? <Spinner size="sm" /> : `Pay ₹${total.toFixed(2)}`}

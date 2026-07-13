@@ -41,9 +41,22 @@ export default function OrderDetailPage() {
       <div className="border rounded p-4 mb-6">
         <h2 className="font-semibold mb-3">Items</h2>
         {order.items.map((item, i) => (
-          <div key={i} className="flex justify-between text-sm py-2 border-b last:border-0">
-            <span>{item.name} x{item.quantity}</span>
-            <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+          <div key={i} className="flex items-center gap-3 text-sm py-2 border-b last:border-0">
+            <div className="w-14 h-14 rounded border overflow-hidden bg-gray-100 shrink-0">
+              {item.image ? (
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">N/A</div>
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">{item.name}</p>
+              {item.size && <p className="text-xs text-gray-500">Size: {item.size}{item.color ? ` | Color: ${item.color}` : ''}</p>}
+            </div>
+            <div className="text-right shrink-0">
+              <p>₹{(item.price * item.quantity).toFixed(2)}</p>
+              <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+            </div>
           </div>
         ))}
         <div className="border-t mt-2 pt-2 space-y-1 text-sm">

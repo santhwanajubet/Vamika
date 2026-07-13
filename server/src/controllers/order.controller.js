@@ -24,6 +24,8 @@ const createOrder = async (req, res, next) => {
         throw ApiError.badRequest(`Insufficient stock for ${product.name} (${item.variantSku})`);
       }
 
+      const price = product.offerPrice || product.price;
+
       orderItems.push({
         product: product._id,
         name: product.name,
@@ -31,11 +33,11 @@ const createOrder = async (req, res, next) => {
         size: variant.size,
         color: variant.color,
         sku: variant.sku,
-        price: product.price,
+        price,
         quantity: item.quantity,
       });
 
-      subtotal += product.price * item.quantity;
+      subtotal += price * item.quantity;
       productUpdates.push({
         updateOne: {
           filter: { _id: product._id, 'variants.sku': variant.sku },
@@ -75,8 +77,6 @@ const createOrder = async (req, res, next) => {
     });
 
     await Product.bulkWrite(productUpdates);
-    cart.items = [];
-    await cart.save();
 
     res.status(201).json({ success: true, data: { order } });
   } catch (error) {

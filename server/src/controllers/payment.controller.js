@@ -1,6 +1,7 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Order = require('../models/Order');
+const Cart = require('../models/Cart');
 const ApiError = require('../utils/ApiError');
 
 const razorpay = new Razorpay({
@@ -60,6 +61,12 @@ const verifyPayment = async (req, res, next) => {
     order.paymentId = razorpay_payment_id;
     order.statusHistory.push({ status: 'confirmed', note: 'Payment received' });
     await order.save();
+
+    const cart = await Cart.findOne({ user: order.user });
+    if (cart) {
+      cart.items = [];
+      await cart.save();
+    }
 
     res.json({ success: true, message: 'Payment verified' });
   } catch (error) {

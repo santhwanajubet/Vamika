@@ -28,6 +28,7 @@ import AdminAnalytics from '../pages/admin/AdminAnalytics';
 import PrivacyPage from '../pages/legal/PrivacyPage';
 import TermsPage from '../pages/legal/TermsPage';
 import ContactPage from '../pages/legal/ContactPage';
+import RefundPolicyPage from '../pages/legal/RefundPolicyPage';
 import Spinner from '../components/ui/Spinner';
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -61,6 +62,7 @@ export default function AppRoutes() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/refund" element={<RefundPolicyPage />} />
 
         <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />

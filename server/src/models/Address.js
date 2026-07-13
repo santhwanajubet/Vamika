@@ -42,7 +42,7 @@ const addressSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Country is required'],
     trim: true,
-    default: 'US',
+    default: 'India',
   },
   isDefault: { type: Boolean, default: false },
 }, { timestamps: true });

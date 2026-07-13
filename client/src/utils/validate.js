@@ -64,6 +64,26 @@ export function validateCoupon(form) {
   return errors;
 }
 
+export function validateAddress(form) {
+  const errors = {};
+  if (!form.fullName.trim()) errors.fullName = 'Name is required';
+  else if (form.fullName.trim().length < 2) errors.fullName = 'Name is too short';
+
+  if (!form.phone.trim()) errors.phone = 'Phone is required';
+  else if (!PHONE_RE.test(form.phone.trim())) errors.phone = 'Enter a valid 10-digit phone number';
+
+  if (!form.line1.trim()) errors.line1 = 'Address is required';
+  else if (form.line1.trim().length < 5) errors.line1 = 'Enter a complete address';
+
+  if (!form.city.trim()) errors.city = 'City is required';
+  if (!form.state.trim()) errors.state = 'State is required';
+
+  if (!form.zipCode.trim()) errors.zipCode = 'PIN code is required';
+  else if (!PINCODE_RE.test(form.zipCode.trim())) errors.zipCode = 'Enter a valid 6-digit PIN code';
+
+  return errors;
+}
+
 export function validateProduct(form) {
   const errors = {};
   if (!form.name.trim()) errors.name = 'Name is required';
