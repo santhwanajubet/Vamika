@@ -5,6 +5,8 @@ import { getCategories } from '../../api/categoryApi';
 import api from '../../api/axios';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { validateProduct } from '../../utils/validate';
 
 const emptyVariant = { size: '', color: '', colorCode: '', sku: '', stock: 0 };
 
@@ -17,6 +19,7 @@ export default function AdminProductForm() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState({});
   const fileRef = useRef(null);
   const [form, setForm] = useState({
     name: '', description: '', price: '', offerPrice: '', costPrice: '',
@@ -107,6 +110,12 @@ export default function AdminProductForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const fieldErrors = validateProduct(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     setSaving(true);
 
     const payload = {
@@ -154,8 +163,9 @@ export default function AdminProductForm() {
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="block text-sm font-medium mb-1">Name</label>
-            <input className="w-full border rounded px-3 py-2 text-sm" value={form.name}
+            <input className={`w-full border rounded px-3 py-2 text-sm ${errors.name ? 'border-red-500' : ''}`} value={form.name}
               onChange={(e) => updateField('name', e.target.value)} required />
+            <FieldError message={errors.name} />
           </div>
 
           <div className="col-span-2">
@@ -166,25 +176,27 @@ export default function AdminProductForm() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Price</label>
-            <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-sm" value={form.price}
+            <input type="number" step="0.01" className={`w-full border rounded px-3 py-2 text-sm ${errors.price ? 'border-red-500' : ''}`} value={form.price}
               onChange={(e) => updateField('price', e.target.value)} required />
+            <FieldError message={errors.price} />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Offer Price</label>
-            <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-sm" value={form.offerPrice}
+            <input type="number" step="0.01" className={`w-full border rounded px-3 py-2 text-sm ${errors.offerPrice ? 'border-red-500' : ''}`} value={form.offerPrice}
               onChange={(e) => updateField('offerPrice', e.target.value)} />
+            <FieldError message={errors.offerPrice} />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Category</label>
-            <select className="w-full border rounded px-3 py-2 text-sm" value={form.category}
+            <select className={`w-full border rounded px-3 py-2 text-sm ${errors.category ? 'border-red-500' : ''}`} value={form.category}
               onChange={(e) => updateField('category', e.target.value)} required>
               <option value="">Select</option>
               {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
+            <FieldError message={errors.category} />
           </div>
-
           <div>
             <label className="block text-sm font-medium mb-1">Material</label>
             <select className="w-full border rounded px-3 py-2 text-sm" value={form.material}

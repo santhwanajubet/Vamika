@@ -3,15 +3,27 @@ import { Link } from 'react-router-dom';
 import { forgotPassword } from '../../api/authApi';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { EMAIL_RE } from '../../utils/validate';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
+  const [fieldError, setFieldError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim()) {
+      setFieldError('Email is required');
+      return;
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      setFieldError('Enter a valid email');
+      return;
+    }
+    setFieldError('');
     setLoading(true);
     setError('');
     setMessage('');
@@ -24,6 +36,8 @@ export default function ForgotPasswordPage() {
       setLoading(false);
     }
   };
+
+  const inputClass = `w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${fieldError ? 'border-red-500' : 'border-gray-300'}`;
 
   return (
     <div className="max-w-md mx-auto mt-16 px-4">
@@ -41,11 +55,11 @@ export default function ForgotPasswordPage() {
             <label className="block text-sm font-medium mb-1">Email</label>
             <input
               type="email"
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className={inputClass}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            <FieldError message={fieldError} />
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full">

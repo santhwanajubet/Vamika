@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { getAllCoupons, createCoupon, deleteCoupon } from '../../api/couponApi';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { validateCoupon } from '../../utils/validate';
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ code: '', type: 'percentage', value: '', minCartValue: 0, validFrom: '', validUntil: '' });
   const [showForm, setShowForm] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const fetchCoupons = () => {
     setLoading(true);
@@ -20,6 +23,12 @@ export default function AdminCoupons() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    const fieldErrors = validateCoupon(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     await createCoupon({ ...form, value: Number(form.value), minCartValue: Number(form.minCartValue) });
     setShowForm(false);
     setForm({ code: '', type: 'percentage', value: '', minCartValue: 0, validFrom: '', validUntil: '' });
@@ -41,21 +50,30 @@ export default function AdminCoupons() {
 
       {showForm && (
         <form onSubmit={handleCreate} className="border rounded p-4 mb-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-          <input className="border rounded px-3 py-2 text-sm" placeholder="Code" value={form.code}
-            onChange={(e) => setForm({ ...form, code: e.target.value })} required />
+          <div>
+            <input className={`border rounded px-3 py-2 text-sm ${errors.code ? 'border-red-500' : ''}`} placeholder="Code" value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })} required />
+            <FieldError message={errors.code} />
+          </div>
           <select className="border rounded px-3 py-2 text-sm" value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}>
             <option value="percentage">Percentage</option>
             <option value="fixed">Fixed</option>
           </select>
-          <input className="border rounded px-3 py-2 text-sm" placeholder="Value" type="number" value={form.value}
-            onChange={(e) => setForm({ ...form, value: e.target.value })} required />
+          <div>
+            <input className={`border rounded px-3 py-2 text-sm ${errors.value ? 'border-red-500' : ''}`} placeholder="Value" type="number" value={form.value}
+              onChange={(e) => setForm({ ...form, value: e.target.value })} required />
+            <FieldError message={errors.value} />
+          </div>
           <input className="border rounded px-3 py-2 text-sm" placeholder="Min Cart Value" type="number" value={form.minCartValue}
             onChange={(e) => setForm({ ...form, minCartValue: e.target.value })} />
           <input className="border rounded px-3 py-2 text-sm" type="date" value={form.validFrom}
             onChange={(e) => setForm({ ...form, validFrom: e.target.value })} required />
-          <input className="border rounded px-3 py-2 text-sm" type="date" value={form.validUntil}
-            onChange={(e) => setForm({ ...form, validUntil: e.target.value })} required />
+          <div>
+            <input className={`border rounded px-3 py-2 text-sm ${errors.validUntil ? 'border-red-500' : ''}`} type="date" value={form.validUntil}
+              onChange={(e) => setForm({ ...form, validUntil: e.target.value })} required />
+            <FieldError message={errors.validUntil} />
+          </div>
           <Button type="submit">Create</Button>
         </form>
       )}

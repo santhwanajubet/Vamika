@@ -4,9 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login, clearError } from '../../features/authSlice';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { validateLogin } from '../../utils/validate';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, loading, error } = useSelector((s) => s.auth);
@@ -16,8 +19,16 @@ export default function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const fieldErrors = validateLogin(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     dispatch(login(form));
   };
+
+  const inputClass = (field) => `w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${errors[field] ? 'border-red-500' : 'border-gray-300'}`;
 
   return (
     <div className="max-w-md mx-auto mt-16 px-4">
@@ -27,21 +38,21 @@ export default function LoginPage() {
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
             type="email"
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className={inputClass('email')}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
+          <FieldError message={errors.email} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Password</label>
           <input
             type="password"
-            required
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className={inputClass('password')}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
+          <FieldError message={errors.password} />
         </div>
         <div className="flex justify-end">
           <Link to="/auth/forgot-password" className="text-xs text-gray-500 underline">Forgot password?</Link>

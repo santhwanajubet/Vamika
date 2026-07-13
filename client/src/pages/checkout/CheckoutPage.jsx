@@ -7,6 +7,8 @@ import { validateCoupon } from '../../api/couponApi';
 import { clearUserCart } from '../../features/cartSlice';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { validateCheckout } from '../../utils/validate';
 
 function loadScript(src) {
   return new Promise((resolve) => {
@@ -26,6 +28,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState({
     fullName: '', phone: '', line1: '', city: '', state: '', zipCode: '', country: 'India',
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [couponCode, setCouponCode] = useState('');
@@ -67,6 +70,12 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const fieldErrors = validateCheckout(address);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     setLoading(true);
     setError('');
 
@@ -119,28 +128,51 @@ export default function CheckoutPage() {
     return null;
   }
 
+  const inputClass = (field) => `w-full border rounded px-3 py-2 text-sm ${errors[field] ? 'border-red-500' : 'border-gray-300'}`;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-8 md:gap-12">
       <div>
         <h1 className="text-2xl font-bold mb-6">Shipping Address</h1>
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input type="text" placeholder="Full Name" required className="w-full border rounded px-3 py-2 text-sm"
-            value={address.fullName} onChange={(e) => setAddress({ ...address, fullName: e.target.value })} />
-          <input type="tel" placeholder="Phone" required className="w-full border rounded px-3 py-2 text-sm"
-            value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
-          <input type="text" placeholder="Address Line 1" required className="w-full border rounded px-3 py-2 text-sm"
-            value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} />
-          <div className="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="City" required className="border rounded px-3 py-2 text-sm"
-              value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
-            <input type="text" placeholder="State" required className="border rounded px-3 py-2 text-sm"
-              value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} />
+          <div>
+            <input type="text" placeholder="Full Name" required className={inputClass('fullName')}
+              value={address.fullName} onChange={(e) => setAddress({ ...address, fullName: e.target.value })} />
+            <FieldError message={errors.fullName} />
+          </div>
+          <div>
+            <input type="tel" placeholder="Phone (10 digits)" required className={inputClass('phone')}
+              value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} />
+            <FieldError message={errors.phone} />
+          </div>
+          <div>
+            <input type="text" placeholder="Address Line 1" required className={inputClass('line1')}
+              value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} />
+            <FieldError message={errors.line1} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="PIN Code" required className="border rounded px-3 py-2 text-sm"
-              value={address.zipCode} onChange={(e) => setAddress({ ...address, zipCode: e.target.value })} />
-            <input type="text" placeholder="Country" required className="border rounded px-3 py-2 text-sm"
-              value={address.country} onChange={(e) => setAddress({ ...address, country: e.target.value })} />
+            <div>
+              <input type="text" placeholder="City" required className={inputClass('city')}
+                value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />
+              <FieldError message={errors.city} />
+            </div>
+            <div>
+              <input type="text" placeholder="State" required className={inputClass('state')}
+                value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} />
+              <FieldError message={errors.state} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <input type="text" placeholder="PIN Code (6 digits)" required className={inputClass('zipCode')}
+                value={address.zipCode} onChange={(e) => setAddress({ ...address, zipCode: e.target.value.replace(/\D/g, '').slice(0, 6) })} />
+              <FieldError message={errors.zipCode} />
+            </div>
+            <div>
+              <input type="text" placeholder="Country" required className={inputClass('country')}
+                value={address.country} onChange={(e) => setAddress({ ...address, country: e.target.value })} />
+              <FieldError message={errors.country} />
+            </div>
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <Button type="submit" disabled={loading} className="w-full">

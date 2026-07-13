@@ -4,11 +4,14 @@ import { updateUserProfile } from '../../features/authSlice';
 import { getAddresses } from '../../api/addressApi';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
+import FieldError from '../../components/ui/FieldError';
+import { validateAccount } from '../../utils/validate';
 
 export default function AccountPage() {
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const [form, setForm] = useState({ name: '', phone: '' });
+  const [errors, setErrors] = useState({});
   const [addresses, setAddresses] = useState([]);
   const [saved, setSaved] = useState(false);
 
@@ -21,12 +24,20 @@ export default function AccountPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const fieldErrors = validateAccount(form);
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
     dispatch(updateUserProfile(form));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   if (!user) return <Spinner className="mt-32" />;
+
+  const inputClass = (field) => `w-full border rounded px-3 py-2 text-sm ${errors[field] ? 'border-red-500' : 'border-gray-300'}`;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -40,13 +51,15 @@ export default function AccountPage() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Name</label>
-          <input type="text" className="w-full border rounded px-3 py-2 text-sm" value={form.name}
+          <input type="text" className={inputClass('name')} value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <FieldError message={errors.name} />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Phone</label>
-          <input type="text" className="w-full border rounded px-3 py-2 text-sm" value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <input type="tel" className={inputClass('phone')} value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} />
+          <FieldError message={errors.phone} />
         </div>
         <Button type="submit">{saved ? 'Saved!' : 'Update Profile'}</Button>
       </form>
