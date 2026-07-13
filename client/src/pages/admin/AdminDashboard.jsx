@@ -31,7 +31,7 @@ export default function AdminDashboard() {
         <div className="p-4 border-b md:border-0 md:pt-6">
           <div className="flex items-center justify-between">
             <Link to="/admin" className="flex items-center">
-              <img src="/vamika_logo.svg" alt="Vamika" className="h-16 w-auto" />
+              <img src="/vamikaLogo.jpeg" alt="Vamika" className="h-12 w-auto" />
             </Link>
             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-500 hover:text-black text-xl leading-none">&times;</button>
           </div>
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <img src="/vamika_logo.svg" alt="Vamika" className="h-10 w-auto" />
+          <img src="/vamikaLogo.jpeg" alt="Vamika" className="h-8 w-auto" />
         </div>
 
         <div className="p-4 md:p-6 md:pt-6">
