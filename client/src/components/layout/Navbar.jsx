@@ -58,9 +58,6 @@ export default function Navbar() {
               <Link to="/auth/login" className={linkClass}>
                 Sign In
               </Link>
-              <Link to="/auth/register" className="bg-black text-white px-4 py-2 rounded text-sm hover:bg-gray-800">
-                Sign Up
-              </Link>
             </div>
           )}
         </div>
@@ -101,7 +98,6 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/auth/login" onClick={() => setOpen(false)} className={mobileLinkClass}>Sign In</Link>
-              <Link to="/auth/register" onClick={() => setOpen(false)} className={mobileLinkClass}>Sign Up</Link>
             </>
           )}
         </div>
