@@ -21,7 +21,7 @@ export default function Navbar() {
   const mobileLinkClass = 'block px-4 py-2 text-sm hover:bg-gray-50';
 
   return (
-    <nav className="border-b border-gray-200 bg-white">
+    <nav className="border-b border-gray-200 bg-white dark:bg-white">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center">
           <img src="/vamikaLogo.jpeg" alt="Vamika" className="h-14 w-auto mix-blend-multiply" />
@@ -77,7 +77,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-gray-100 pb-3">
+        <div className="md:hidden border-t border-gray-100 bg-white pb-3">
           {NAV_LINKS.map(({ to, label }) => (
             <Link key={to} to={to} onClick={() => setOpen(false)} className={mobileLinkClass}>
               {label}
