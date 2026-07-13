@@ -39,8 +39,8 @@ export default function ContactPage() {
 
         <div className="border rounded p-6 sm:col-span-2">
           <h2 className="text-lg font-semibold mb-4">Email</h2>
-          <a href="mailto:support@vamika.com" className="text-sm font-medium hover:underline">
-            support@vamika.com
+          <a href="mailto:support.vamika26@gmail.com" className="text-sm font-medium hover:underline">
+            support.vamika26@gmail.com
           </a>
         </div>
       </div>
