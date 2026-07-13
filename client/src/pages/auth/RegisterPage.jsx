@@ -10,14 +10,15 @@ import { validateRegister } from '../../utils/validate';
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, loading, error } = useSelector((s) => s.auth);
+  const { user, error } = useSelector((s) => s.auth);
 
   useEffect(() => { if (user) navigate('/'); }, [user, navigate]);
   useEffect(() => { dispatch(clearError()); }, [dispatch]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const fieldErrors = validateRegister(form);
     if (Object.keys(fieldErrors).length > 0) {
@@ -25,7 +26,9 @@ export default function RegisterPage() {
       return;
     }
     setErrors({});
-    dispatch(register(form));
+    setSubmitting(true);
+    const result = await dispatch(register(form));
+    if (result.error) setSubmitting(false);
   };
 
   const inputClass = (field) => `w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black ${errors[field] ? 'border-red-500' : 'border-gray-300'}`;
@@ -65,8 +68,8 @@ export default function RegisterPage() {
           <FieldError message={errors.password} />
         </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? <Spinner size="sm" /> : 'Create Account'}
+        <Button type="submit" disabled={submitting} className="w-full">
+          {submitting ? <Spinner size="sm" /> : 'Create Account'}
         </Button>
       </form>
       <p className="text-sm text-gray-500 mt-4 text-center">
