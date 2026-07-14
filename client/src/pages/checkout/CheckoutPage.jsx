@@ -62,7 +62,8 @@ export default function CheckoutPage() {
   };
 
   const subtotal = items.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0);
-  const shipping = subtotal >= 2500 ? 0 : 99;
+  const freeShipping = appliedCoupon?.code === 'SANDELIVERYFREE' || subtotal >= 2500;
+  const shipping = freeShipping ? 0 : 99;
   const total = subtotal + shipping - discount;
 
   const handleApplyCoupon = async () => {

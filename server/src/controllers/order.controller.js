@@ -47,6 +47,7 @@ const createOrder = async (req, res, next) => {
     }
 
     let discount = 0;
+    let freeShipping = false;
     if (couponCode) {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
       if (coupon && Date.now() >= coupon.validFrom && Date.now() <= coupon.validUntil && !coupon.isAtLimit) {
@@ -60,7 +61,12 @@ const createOrder = async (req, res, next) => {
           await coupon.save();
         }
       }
+      if (couponCode.toUpperCase() === 'SANDELIVERYFREE') {
+        freeShipping = true;
+      }
     }
+
+    const shipping = freeShipping ? 0 : (subtotal >= 2500 ? 0 : 99);
 
     const order = await Order.create({
       user: req.user._id,
@@ -71,9 +77,9 @@ const createOrder = async (req, res, next) => {
       subtotal: Math.round(subtotal * 100) / 100,
       discount: Math.round(discount * 100) / 100,
       couponCode: couponCode || '',
-      shippingCost: subtotal >= 2500 ? 0 : 99,
+      shippingCost: shipping,
       tax: 0,
-      total: Math.round((subtotal - discount + (subtotal >= 2500 ? 0 : 99)) * 100) / 100,
+      total: Math.round((subtotal - discount + shipping) * 100) / 100,
     });
 
     await Product.bulkWrite(productUpdates);
