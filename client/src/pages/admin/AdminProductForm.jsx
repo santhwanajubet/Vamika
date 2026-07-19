@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { createProduct, updateProduct, getProduct } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
 import { getMaterials } from '../../api/materialApi';
@@ -97,7 +98,7 @@ export default function AdminProductForm() {
       imgs.push('');
       setForm((f) => ({ ...f, images: imgs }));
     } catch (err) {
-      alert(err.response?.data?.message || 'Upload failed');
+      toast.error(err.response?.data?.message || 'Upload failed');
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -117,7 +118,7 @@ export default function AdminProductForm() {
       v[variantIdx].images = [...(v[variantIdx].images || []), url];
       setForm((f) => ({ ...f, variants: v }));
     } catch (err) {
-      alert(err.response?.data?.message || 'Upload failed');
+      toast.error(err.response?.data?.message || 'Upload failed');
     } finally {
       setUploading(false);
       if (variantFileRef.current) variantFileRef.current.value = '';
@@ -185,7 +186,7 @@ export default function AdminProductForm() {
       }
       navigate('/admin/products');
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save product');
+      toast.error(err.response?.data?.message || 'Failed to save product');
     } finally {
       setSaving(false);
     }

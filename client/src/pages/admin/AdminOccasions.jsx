@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { getOccasions, createOccasion, updateOccasion, deleteOccasion } from '../../api/occasionApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -33,7 +34,7 @@ export default function AdminOccasions() {
       setName('');
       setEditingId(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save occasion');
+      toast.error(err.response?.data?.message || 'Failed to save occasion');
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +51,7 @@ export default function AdminOccasions() {
       await deleteOccasion(id);
       setOccasions((prev) => prev.filter((o) => o._id !== id));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete occasion');
+      toast.error(err.response?.data?.message || 'Failed to delete occasion');
     }
   };
 

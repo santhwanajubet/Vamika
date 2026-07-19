@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../api/categoryApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -33,7 +34,7 @@ export default function AdminCategories() {
       setForm({ name: '', description: '' });
       setEditingId(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save category');
+      toast.error(err.response?.data?.message || 'Failed to save category');
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +51,7 @@ export default function AdminCategories() {
       await deleteCategory(id);
       setCategories((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete category');
+      toast.error(err.response?.data?.message || 'Failed to delete category');
     }
   };
 

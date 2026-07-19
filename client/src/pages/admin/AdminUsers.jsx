@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { getUsers, updateUserRole, deleteUser } from '../../api/userApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -25,7 +26,7 @@ export default function AdminUsers() {
       const res = await updateUserRole(userId, newRole);
       setUsers((prev) => prev.map((u) => (u._id === userId ? res.data.data.user : u)));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update role');
+      toast.error(err.response?.data?.message || 'Failed to update role');
     }
   };
 
@@ -35,7 +36,7 @@ export default function AdminUsers() {
       await deleteUser(userId);
       setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete user');
+      toast.error(err.response?.data?.message || 'Failed to delete user');
     }
   };
 

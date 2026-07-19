@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 import { getProduct, getRelated } from '../../api/productApi';
 import { getProductReviews, createReview } from '../../api/reviewApi';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../../api/wishlistApi';
@@ -144,7 +145,7 @@ export default function ProductPage() {
       setReviews((prev) => [res.data.data.review, ...prev]);
       setForm({ rating: 0, title: '', comment: '' });
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to submit review');
+      toast.error(err.response?.data?.message || 'Failed to submit review');
     } finally {
       setSubmitting(false);
     }

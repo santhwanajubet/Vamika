@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { getMaterials, createMaterial, updateMaterial, deleteMaterial } from '../../api/materialApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -33,7 +34,7 @@ export default function AdminMaterials() {
       setName('');
       setEditingId(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save material');
+      toast.error(err.response?.data?.message || 'Failed to save material');
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +51,7 @@ export default function AdminMaterials() {
       await deleteMaterial(id);
       setMaterials((prev) => prev.filter((m) => m._id !== id));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete material');
+      toast.error(err.response?.data?.message || 'Failed to delete material');
     }
   };
 

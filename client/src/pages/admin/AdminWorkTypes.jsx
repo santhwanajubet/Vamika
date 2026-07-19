@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { getWorkTypes, createWorkType, updateWorkType, deleteWorkType } from '../../api/workTypeApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -33,7 +34,7 @@ export default function AdminWorkTypes() {
       setName('');
       setEditingId(null);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save work type');
+      toast.error(err.response?.data?.message || 'Failed to save work type');
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +51,7 @@ export default function AdminWorkTypes() {
       await deleteWorkType(id);
       setWorkTypes((prev) => prev.filter((w) => w._id !== id));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete work type');
+      toast.error(err.response?.data?.message || 'Failed to delete work type');
     }
   };
 

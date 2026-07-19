@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { getAllReviews, approveReview, deleteReview } from '../../api/reviewApi';
 import Spinner from '../../components/ui/Spinner';
 
@@ -21,7 +22,7 @@ export default function AdminReviews() {
       await approveReview(id, isApproved);
       fetch();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update review');
+      toast.error(err.response?.data?.message || 'Failed to update review');
     }
   };
 
@@ -31,7 +32,7 @@ export default function AdminReviews() {
       await deleteReview(id);
       fetch();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete review');
+      toast.error(err.response?.data?.message || 'Failed to delete review');
     }
   };
 
