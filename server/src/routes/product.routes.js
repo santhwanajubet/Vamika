@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const {
   getProducts, getProduct, getFeatured, getNewArrivals, getRelated,
-  createProduct, updateProduct, deleteProduct, bulkDeleteProducts,
+  createProduct, updateProduct, deleteProduct, bulkDeleteProducts, searchProducts,
 } = require('../controllers/product.controller');
 const { protect, admin } = require('../middleware/auth');
 
@@ -91,6 +91,7 @@ const router = Router();
  *         description: Related products
  */
 router.get('/', getProducts);
+router.get('/search', searchProducts);
 router.get('/featured', getFeatured);
 router.get('/new-arrivals', getNewArrivals);
 router.get('/related/:id', getRelated);

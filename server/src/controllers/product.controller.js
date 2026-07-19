@@ -177,7 +177,35 @@ const bulkDeleteProducts = async (req, res, next) => {
   }
 };
 
+const searchProducts = async (req, res, next) => {
+  try {
+    const { q, limit = 10 } = req.query;
+    if (!q || !q.trim()) {
+      return res.json({ success: true, data: { products: [] } });
+    }
+
+    const regex = new RegExp(q.trim(), 'i');
+    const products = await Product.find({
+      isActive: true,
+      $or: [
+        { name: regex },
+        { tags: regex },
+        { material: regex },
+        { workType: regex },
+        { occasion: regex },
+      ],
+    })
+      .select('name slug price offerPrice images')
+      .limit(Number(limit))
+      .sort('-soldCount');
+
+    res.json({ success: true, data: { products } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getProducts, getProduct, getFeatured, getNewArrivals, getRelated,
-  createProduct, updateProduct, deleteProduct, bulkDeleteProducts,
+  createProduct, updateProduct, deleteProduct, bulkDeleteProducts, searchProducts,
 };
