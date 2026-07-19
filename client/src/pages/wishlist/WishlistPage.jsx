@@ -31,7 +31,7 @@ export default function WishlistPage() {
             <div key={p._id}>
               <Link to={`/product/${p.slug}`}>
                 <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
-                  {p.images?.[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />}
+                  {(p.images?.[0] || p.variants?.[0]?.images?.[0]) && <img src={p.images?.[0] || p.variants?.[0]?.images?.[0]} alt={p.name} className="w-full h-full object-cover" />}
                 </div>
               </Link>
               <h3 className="font-medium text-sm">{p.name}</h3>

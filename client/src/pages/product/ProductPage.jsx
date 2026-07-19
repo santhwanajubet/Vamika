@@ -88,7 +88,12 @@ export default function ProductPage() {
     (v) => v.size === selectedSize && v.color === selectedColor
   );
 
+  const displayImages = currentVariant?.images?.length
+    ? currentVariant.images
+    : product?.images || [];
+
   useEffect(() => { setAddedToCart(false); }, [selectedSize, selectedColor]);
+  useEffect(() => { setActiveImage(0); }, [selectedColor]);
 
   const colors = [...new Set(product?.variants?.map((v) => v.color) || [])];
   const sizes = [...new Set(product?.variants?.map((v) => v.size) || [])];
@@ -153,14 +158,14 @@ export default function ProductPage() {
       <div className="grid md:grid-cols-2 gap-12">
         <div>
           <div className="relative aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
-            {product.images[activeImage] && (
-              <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+            {displayImages[activeImage] && (
+              <img src={displayImages[activeImage]} alt={product.name} className="w-full h-full object-cover" />
             )}
             <WishlistButton productId={product._id} wishlisted={wishlisted} onToggle={() => handleToggleWishlist(product._id)} />
           </div>
-          {product.images.length > 1 && (
+          {displayImages.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, i) => (
+              {displayImages.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
@@ -226,16 +231,51 @@ export default function ProductPage() {
           </Button>
 
           <p className="text-xs text-gray-500">
-            {currentVariant ? `${currentVariant.stock} in stock` : 'Select size and color'}
+            {currentVariant ? (currentVariant.stock > 0 && currentVariant.stock < 5 ? `${currentVariant.stock} in stock` : currentVariant.stock === 0 ? 'Out of stock' : '') : 'Select size and color'}
           </p>
 
           <p className="mt-6 text-sm text-gray-700 leading-relaxed">{product.description}</p>
 
-          <div className="mt-4 text-xs text-gray-400 space-y-1">
-            {product.material && <p>Material: {product.material}</p>}
-            {product.workType && <p>Work Type: {product.workType}</p>}
-            {product.occasion && <p>Occasion: {product.occasion}</p>}
-            {product.length && <p>Length: {product.length}</p>}
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-sm font-semibold mb-3">Product Details</h3>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              {product.material && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Material</span>
+                  <span className="font-medium">{product.material}</span>
+                </div>
+              )}
+              {product.workType && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Work Type</span>
+                  <span className="font-medium">{product.workType}</span>
+                </div>
+              )}
+              {product.occasion && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Occasion</span>
+                  <span className="font-medium">{product.occasion}</span>
+                </div>
+              )}
+              {product.length && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Length</span>
+                  <span className="font-medium">{product.length}</span>
+                </div>
+              )}
+              {product.category?.name && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Category</span>
+                  <span className="font-medium">{product.category.name}</span>
+                </div>
+              )}
+              {product.tags?.length > 0 && (
+                <div className="col-span-2 flex justify-between">
+                  <span className="text-gray-500">Tags</span>
+                  <span className="font-medium">{product.tags.join(', ')}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -307,13 +347,16 @@ export default function ProductPage() {
             {related.map((p) => (
               <Link key={p._id} to={`/product/${p.slug}`} className="group relative">
                 <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
-                  {p.images[0] && (
-                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  {(p.images[0] || p.variants?.[0]?.images?.[0]) && (
+                    <img src={p.images[0] || p.variants?.[0]?.images?.[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                   )}
                   <WishlistButton productId={p._id} wishlisted={wishlistIds.has(p._id)} onToggle={() => handleToggleWishlist(p._id)} />
                 </div>
                 <h3 className="font-medium text-sm">{p.name}</h3>
-                <p className="text-sm text-gray-500">₹{p.price}</p>
+                <p className="text-sm text-gray-500">
+                  {p.offerPrice && <span className="line-through mr-2">₹{p.price}</span>}
+                  ₹{p.offerPrice || p.price}
+                </p>
               </Link>
             ))}
           </div>

@@ -24,6 +24,9 @@ import AdminCoupons from '../pages/admin/AdminCoupons';
 import AdminReviews from '../pages/admin/AdminReviews';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminCategories from '../pages/admin/AdminCategories';
+import AdminMaterials from '../pages/admin/AdminMaterials';
+import AdminWorkTypes from '../pages/admin/AdminWorkTypes';
+import AdminOccasions from '../pages/admin/AdminOccasions';
 import AdminAnalytics from '../pages/admin/AdminAnalytics';
 import PrivacyPage from '../pages/legal/PrivacyPage';
 import TermsPage from '../pages/legal/TermsPage';
@@ -80,6 +83,9 @@ export default function AppRoutes() {
           <Route path="coupons" element={<AdminCoupons />} />
           <Route path="reviews" element={<AdminReviews />} />
           <Route path="categories" element={<AdminCategories />} />
+          <Route path="materials" element={<AdminMaterials />} />
+          <Route path="work-types" element={<AdminWorkTypes />} />
+          <Route path="occasions" element={<AdminOccasions />} />
           <Route path="users" element={<AdminUsers />} />
         </Route>
 

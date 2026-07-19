@@ -2,13 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createProduct, updateProduct, getProduct } from '../../api/productApi';
 import { getCategories } from '../../api/categoryApi';
+import { getMaterials } from '../../api/materialApi';
+import { getWorkTypes } from '../../api/workTypeApi';
+import { getOccasions } from '../../api/occasionApi';
 import api from '../../api/axios';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import FieldError from '../../components/ui/FieldError';
 import { validateProduct } from '../../utils/validate';
 
-const emptyVariant = { size: '', color: '', colorCode: '', sku: '', stock: 0 };
+const emptyVariant = { size: '', color: '', colorCode: '', sku: '', stock: 0, images: [] };
 
 export default function AdminProductForm() {
   const { id } = useParams();
@@ -16,14 +19,19 @@ export default function AdminProductForm() {
   const isEdit = !!id;
 
   const [categories, setCategories] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [workTypes, setWorkTypes] = useState([]);
+  const [occasions, setOccasions] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [variantUploadIdx, setVariantUploadIdx] = useState(null);
   const [errors, setErrors] = useState({});
   const fileRef = useRef(null);
+  const variantFileRef = useRef(null);
   const [form, setForm] = useState({
     name: '', description: '', price: '', offerPrice: '', costPrice: '',
-    category: '', material: '', workType: '', occasion: '', length: '',
+    category: '', material: '', workType: '', occasion: '',
     tags: '', featured: false, isNew: false,
     images: [''],
     variants: [{ ...emptyVariant }],
@@ -31,6 +39,9 @@ export default function AdminProductForm() {
 
   useEffect(() => {
     getCategories().then((c) => setCategories(c.data.data.categories));
+    getMaterials().then((m) => setMaterials(m.data.data.materials));
+    getWorkTypes().then((w) => setWorkTypes(w.data.data.workTypes));
+    getOccasions().then((o) => setOccasions(o.data.data.occasions));
 
     if (isEdit) {
       getProduct(id)
@@ -46,7 +57,6 @@ export default function AdminProductForm() {
             material: p.material || '',
             workType: p.workType || '',
             occasion: p.occasion || '',
-            length: p.length || '',
             tags: p.tags?.join(', ') || '',
             featured: p.featured || false,
             isNew: p.isNew || false,
@@ -93,6 +103,32 @@ export default function AdminProductForm() {
     }
   };
 
+  const handleVariantUpload = async (e, variantIdx) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await api.post('/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const url = res.data.data.url;
+      const v = [...form.variants];
+      v[variantIdx].images = [...(v[variantIdx].images || []), url];
+      setForm((f) => ({ ...f, variants: v }));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (variantFileRef.current) variantFileRef.current.value = '';
+    }
+  };
+
+  const removeVariantImage = (variantIdx, imgIdx) => {
+    const v = [...form.variants];
+    v[variantIdx].images = v[variantIdx].images.filter((_, i) => i !== imgIdx);
+    setForm((f) => ({ ...f, variants: v }));
+  };
+
   const updateVariant = (idx, field, value) => {
     const v = [...form.variants];
     v[idx][field] = value;
@@ -128,7 +164,6 @@ export default function AdminProductForm() {
       material: form.material || undefined,
       workType: form.workType || undefined,
       occasion: form.occasion || undefined,
-      length: form.length || undefined,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       featured: form.featured,
       isNew: form.isNew,
@@ -136,6 +171,7 @@ export default function AdminProductForm() {
       variants: form.variants.filter((v) => v.sku).map((v) => ({
         ...v,
         stock: Number(v.stock),
+        images: (v.images || []).filter(Boolean),
       })),
     };
 
@@ -202,8 +238,8 @@ export default function AdminProductForm() {
             <select className="w-full border rounded px-3 py-2 text-sm" value={form.material}
               onChange={(e) => updateField('material', e.target.value)}>
               <option value="">Select</option>
-              {['Silk', 'Cotton', 'Georgette', 'Chiffon', 'Linen', 'Velvet', 'Lace', 'Net'].map((m) => (
-                <option key={m} value={m.toLowerCase()}>{m}</option>
+              {materials.map((m) => (
+                <option key={m._id} value={m.name}>{m.name}</option>
               ))}
             </select>
           </div>
@@ -213,8 +249,8 @@ export default function AdminProductForm() {
             <select className="w-full border rounded px-3 py-2 text-sm" value={form.workType}
               onChange={(e) => updateField('workType', e.target.value)}>
               <option value="">Select</option>
-              {['Embroidered', 'Printed', 'Handwoven', 'Block Print', 'Zari Work', 'Stone Work', 'Mirror Work'].map((w) => (
-                <option key={w} value={w.toLowerCase()}>{w}</option>
+              {workTypes.map((w) => (
+                <option key={w._id} value={w.name}>{w.name}</option>
               ))}
             </select>
           </div>
@@ -224,19 +260,8 @@ export default function AdminProductForm() {
             <select className="w-full border rounded px-3 py-2 text-sm" value={form.occasion}
               onChange={(e) => updateField('occasion', e.target.value)}>
               <option value="">Select</option>
-              {['Wedding', 'Festive', 'Casual', 'Party', 'Daily Wear', 'Temple', 'Office'].map((o) => (
-                <option key={o} value={o.toLowerCase()}>{o}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Length</label>
-            <select className="w-full border rounded px-3 py-2 text-sm" value={form.length}
-              onChange={(e) => updateField('length', e.target.value)}>
-              <option value="">Select</option>
-              {['5.5m', '6.0m', '6.5m', '7.0m', '8.0m'].map((l) => (
-                <option key={l} value={l}>{l}</option>
+              {occasions.map((o) => (
+                <option key={o._id} value={o.name}>{o.name}</option>
               ))}
             </select>
           </div>
@@ -303,22 +328,52 @@ export default function AdminProductForm() {
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium">Variants (Size / Color / SKU / Stock)</label>
+            <label className="block text-sm font-medium">Variants (Color / SKU / Stock)</label>
             <button type="button" onClick={addVariant} className="text-sm text-blue-600 hover:underline">+ Add</button>
           </div>
           {form.variants.map((v, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <input className="w-20 border rounded px-2 py-1 text-sm" placeholder="Size" value={v.size}
-                onChange={(e) => updateVariant(i, 'size', e.target.value)} required />
-              <input className="flex-1 border rounded px-2 py-1 text-sm" placeholder="Color" value={v.color}
-                onChange={(e) => updateVariant(i, 'color', e.target.value)} required />
-              <input className="w-24 border rounded px-2 py-1 text-sm" placeholder="SKU" value={v.sku}
-                onChange={(e) => updateVariant(i, 'sku', e.target.value)} required />
-              <input type="number" className="w-20 border rounded px-2 py-1 text-sm" placeholder="Stock" value={v.stock}
-                onChange={(e) => updateVariant(i, 'stock', e.target.value)} required />
-              {form.variants.length > 1 && (
-                <button type="button" onClick={() => removeVariant(i)} className="text-red-500 text-sm">X</button>
-              )}
+            <div key={i} className="border rounded p-3 mb-3">
+              <div className="flex gap-2 mb-2">
+                <input className="w-20 border rounded px-2 py-1 text-sm" placeholder="Size" value={v.size}
+                  onChange={(e) => updateVariant(i, 'size', e.target.value)} />
+                <input className="flex-1 border rounded px-2 py-1 text-sm" placeholder="Color" value={v.color}
+                  onChange={(e) => updateVariant(i, 'color', e.target.value)} required />
+                <input className="w-24 border rounded px-2 py-1 text-sm" placeholder="SKU" value={v.sku}
+                  onChange={(e) => updateVariant(i, 'sku', e.target.value)} required />
+                <input type="number" className="w-20 border rounded px-2 py-1 text-sm" placeholder="Stock" value={v.stock}
+                  onChange={(e) => updateVariant(i, 'stock', e.target.value)} required />
+                {form.variants.length > 1 && (
+                  <button type="button" onClick={() => removeVariant(i)} className="text-red-500 text-sm">X</button>
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Color Images</p>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {(v.images || []).length === 0 && form.images.filter(Boolean).length > 0 && (
+                    <div className="relative w-16 h-16 rounded border overflow-hidden opacity-50">
+                      <img src={form.images.filter(Boolean)[0]} alt="" className="w-full h-full object-cover" />
+                      <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] text-center py-0.5">Default</span>
+                    </div>
+                  )}
+                  {(v.images || []).map((img, j) => (
+                    <div key={j} className="relative w-16 h-16 rounded border overflow-hidden group">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeVariantImage(i, j)}
+                        className="absolute top-0.5 right-0.5 bg-red-600 text-white text-xs w-4 h-4 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      >×</button>
+                    </div>
+                  ))}
+                </div>
+                <input
+                  ref={variantUploadIdx === i ? variantFileRef : undefined}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleVariantUpload(e, i)}
+                  className="text-xs"
+                />
+              </div>
             </div>
           ))}
         </div>

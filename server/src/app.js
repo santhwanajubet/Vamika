@@ -20,6 +20,9 @@ const addressRoutes = require('./routes/address.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
 const paymentRoutes = require('./routes/payment.routes');
+const materialRoutes = require('./routes/material.routes');
+const workTypeRoutes = require('./routes/workType.routes');
+const occasionRoutes = require('./routes/occasion.routes');
 const swaggerSpec = require('./config/swagger');
 
 const app = express();
@@ -115,6 +118,9 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/materials', materialRoutes);
+app.use('/api/work-types', workTypeRoutes);
+app.use('/api/occasions', occasionRoutes);
 
 // ─── 404 handler ─────────────────────────────────
 app.all('*', (req, res) => {

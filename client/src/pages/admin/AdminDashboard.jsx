@@ -12,6 +12,9 @@ const ADMIN_LINKS = [
   { to: '/admin/coupons', label: 'Coupons' },
   { to: '/admin/reviews', label: 'Reviews' },
   { to: '/admin/categories', label: 'Categories' },
+  { to: '/admin/materials', label: 'Materials' },
+  { to: '/admin/work-types', label: 'Work Types' },
+  { to: '/admin/occasions', label: 'Occasions' },
   { to: '/admin/users', label: 'Users' },
 ];
 
@@ -22,7 +25,7 @@ export default function AdminDashboard() {
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}

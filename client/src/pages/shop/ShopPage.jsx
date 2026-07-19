@@ -182,8 +182,8 @@ export default function ShopPage() {
               {products.map((p) => (
                 <Link key={p._id} to={`/product/${p.slug}`} className="group relative">
                   <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-2">
-                    {p.images[0] && (
-                      <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    {(p.images[0] || p.variants?.[0]?.images?.[0]) && (
+                      <img src={p.images[0] || p.variants?.[0]?.images?.[0]} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                     )}
                     <WishlistButton productId={p._id} wishlisted={wishlistIds.has(p._id)} onToggle={() => handleToggleWishlist(p._id)} />
                   </div>

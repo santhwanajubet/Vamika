@@ -91,8 +91,8 @@ function ProductCard({ product, wishlisted, onToggleWishlist }) {
   return (
     <Link to={`/product/${product.slug}`} className="group relative">
       <div className="aspect-[3/4] bg-gray-100 rounded overflow-hidden mb-3">
-        {product.images[0] && (
-          <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+        {(product.images[0] || product.variants?.[0]?.images?.[0]) && (
+          <img src={product.images[0] || product.variants?.[0]?.images?.[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
         )}
         <WishlistButton productId={product._id} wishlisted={wishlisted} onToggle={() => onToggleWishlist(product._id)} />
       </div>

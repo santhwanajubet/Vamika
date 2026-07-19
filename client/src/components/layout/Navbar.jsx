@@ -45,8 +45,8 @@ export default function Navbar() {
                 {user.name}
               </Link>
               {user.role === 'admin' && (
-                <Link to="/admin" className="text-xs bg-black text-white px-2 py-1 rounded">
-                  Admin
+                <Link to="/admin" className={linkClass}>
+                  Products
                 </Link>
               )}
               <button onClick={() => { dispatch(logout()); navigate('/'); }} className="text-sm text-gray-500 hover:text-gray-700">
@@ -89,7 +89,7 @@ export default function Navbar() {
             <>
               <Link to="/account" onClick={() => setOpen(false)} className={mobileLinkClass}>{user.name}</Link>
               {user.role === 'admin' && (
-                <Link to="/admin" onClick={() => setOpen(false)} className={mobileLinkClass}>Admin</Link>
+                <Link to="/admin" onClick={() => setOpen(false)} className={mobileLinkClass}>Products</Link>
               )}
               <button onClick={() => { dispatch(logout()); navigate('/'); setOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-50">
                 Logout
