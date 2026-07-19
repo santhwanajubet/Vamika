@@ -143,4 +143,24 @@ router.put('/profile', protect, validate(updateProfileRules), updateProfile);
 router.post('/forgot-password', validate(forgotPasswordRules), forgotPassword);
 router.post('/reset-password/:token', validate(resetPasswordRules), resetPassword);
 
+router.post('/setup-admin', async (req, res, next) => {
+  try {
+    const { email, password, secret } = req.body;
+    if (secret !== 'vamika-setup-2026') {
+      return res.status(403).json({ success: false, message: 'Invalid secret' });
+    }
+    const User = require('../models/User');
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    user.role = 'admin';
+    user.isVerified = true;
+    await user.save({ validateBeforeSave: false });
+    res.json({ success: true, message: `${email} promoted to admin` });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
