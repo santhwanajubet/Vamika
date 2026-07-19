@@ -4,25 +4,29 @@ const env = require('./src/config/env');
 const User = require('./src/models/User');
 
 const bootstrapAdmin = async () => {
-  const adminEmail = 'support.vamika26@gmail.com';
-  const existing = await User.findOne({ email: adminEmail });
-  if (existing) {
-    if (existing.role !== 'admin') {
-      existing.role = 'admin';
-      existing.isVerified = true;
-      await existing.save({ validateBeforeSave: false });
-      console.log(`✓ Promoted ${adminEmail} to admin`);
+  const adminEmails = ['support.vamika26@gmail.com', 'supportvamika26@gmail.com'];
+  for (const email of adminEmails) {
+    const existing = await User.findOne({ email });
+    if (existing) {
+      if (existing.role !== 'admin') {
+        existing.role = 'admin';
+        existing.isVerified = true;
+        await existing.save({ validateBeforeSave: false });
+        console.log(`✓ Promoted ${email} to admin`);
+      } else {
+        console.log(`→ ${email} is already admin`);
+      }
+      return;
     }
-  } else {
-    await User.create({
-      name: 'Vamika Admin',
-      email: adminEmail,
-      password: 'V2Mamika@26',
-      role: 'admin',
-      isVerified: true,
-    });
-    console.log(`✓ Admin user created (${adminEmail})`);
   }
+  await User.create({
+    name: 'Vamika Admin',
+    email: 'support.vamika26@gmail.com',
+    password: 'V2Mamika@26',
+    role: 'admin',
+    isVerified: true,
+  });
+  console.log(`✓ Admin user created (support.vamika26@gmail.com)`);
 };
 
 const start = async () => {
