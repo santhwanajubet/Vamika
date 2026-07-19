@@ -70,17 +70,6 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          {NAV_LINKS.map(({ to, label }) => (
-            <Link key={to} to={to} className={linkClass}>
-              {label}
-              {to === '/cart' && cart.items.length > 0 && (
-                <span className="ml-1 text-xs bg-black text-white px-1.5 py-0.5 rounded-full">
-                  {cart.items.length}
-                </span>
-              )}
-            </Link>
-          ))}
-
           <div className="relative" ref={searchRef}>
             <div className="flex items-center border border-gray-300 rounded-full px-3 py-1.5 focus-within:border-gray-500 transition-colors">
               <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,6 +111,17 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
+          {NAV_LINKS.map(({ to, label }) => (
+            <Link key={to} to={to} className={linkClass}>
+              {label}
+              {to === '/cart' && cart.items.length > 0 && (
+                <span className="ml-1 text-xs bg-black text-white px-1.5 py-0.5 rounded-full">
+                  {cart.items.length}
+                </span>
+              )}
+            </Link>
+          ))}
 
           {user ? (
             <div className="flex items-center gap-3">
