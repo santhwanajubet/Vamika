@@ -42,6 +42,7 @@ const createReview = async (req, res, next) => {
       'items.product': productId,
       status: 'delivered',
     });
+    if (!order) throw ApiError.forbidden('You can only review products you have received');
 
     const review = await Review.create({
       user: req.user._id,
