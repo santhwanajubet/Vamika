@@ -31,7 +31,7 @@ export default function AdminProductForm() {
   const variantFileRef = useRef(null);
   const [form, setForm] = useState({
     name: '', description: '', price: '', offerPrice: '', costPrice: '',
-    category: '', material: '', workType: '', occasion: '',
+    category: '', material: '', workType: '', occasion: '', gender: '',
     tags: '', featured: false, isNew: false,
     images: [''],
     variants: [{ ...emptyVariant }],
@@ -57,6 +57,7 @@ export default function AdminProductForm() {
             material: p.material || '',
             workType: p.workType || '',
             occasion: p.occasion || '',
+            gender: p.gender || '',
             tags: p.tags?.join(', ') || '',
             featured: p.featured || false,
             isNew: p.isNew || false,
@@ -164,6 +165,7 @@ export default function AdminProductForm() {
       material: form.material || undefined,
       workType: form.workType || undefined,
       occasion: form.occasion || undefined,
+      gender: form.gender || undefined,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       featured: form.featured,
       isNew: form.isNew,
@@ -262,6 +264,17 @@ export default function AdminProductForm() {
               <option value="">Select</option>
               {occasions.map((o) => (
                 <option key={o._id} value={o.name}>{o.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Gender</label>
+            <select className="w-full border rounded px-3 py-2 text-sm" value={form.gender}
+              onChange={(e) => updateField('gender', e.target.value)}>
+              <option value="">Select</option>
+              {['Women', 'Men', 'Unisex'].map((g) => (
+                <option key={g} value={g}>{g}</option>
               ))}
             </select>
           </div>

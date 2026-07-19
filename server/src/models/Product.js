@@ -49,6 +49,7 @@ const productSchema = new mongoose.Schema({
   material: { type: String, default: '' },
   workType: { type: String, default: '' },
   occasion: { type: String, default: '' },
+  gender: { type: String, default: '' },
   length: { type: String, default: '' },
   featured: { type: Boolean, default: false },
   isNew: { type: Boolean, default: false },
